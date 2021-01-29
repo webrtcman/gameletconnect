@@ -1,0 +1,9 @@
+{
+    "mainWindow": {
+        "width": 1270,
+        "height": 720,
+        "webPreferences": {
+            "nodeIntegration": true
+        }
+    }
+}
