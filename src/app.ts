@@ -1,6 +1,4 @@
 import Main from "./main";
-import Electron from 'electron';
+import { app, BrowserWindow} from 'electron';
 
-const app = Electron.app;
-
-Main.main(app);
+Main.main(app, BrowserWindow);

@@ -1,0 +1,1 @@
+{"version":3,"file":"windowconfig.js","sourceRoot":"","sources":["../../../src/electron_config/windowconfig.ts"],"names":[],"mappings":";;;AAGc,QAAA,gBAAgB,GAAoC;IAC1D,KAAK,EAAE,IAAI;IACX,MAAM,EAAE,GAAG;IACX,SAAS,EAAE,IAAI;IACf,cAAc,EAAE,IAAI;IACpB,eAAe;IACf,oBAAoB;IACpB,eAAe,EAAE,SAAS;IAC1B,cAAc,EAAE;QACZ,eAAe,EAAE,IAAI;QACrB,WAAW,EAAE,KAAK;KACrB;CACR,CAAA"}

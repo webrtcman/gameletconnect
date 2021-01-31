@@ -1,0 +1,101 @@
+.wrapper {
+  width: 100vw;
+  height:100vh;
+}
+  
+.main-container {
+  position: relative;
+  /*flex-grow: 8;*/
+  padding: 0;
+  margin: 0;
+}
+.main-container::-webkit-scrollbar {
+  display: none;
+}
+  
+.side-container {
+  background: rgb(0, 130, 173);
+}
+
+.menu-overlay {
+  position: absolute;
+  display: flex;
+  right: 0;
+  bottom: 0;
+  align-items: flex-end;
+  background-color: rgba(71, 71, 71, 0.6);
+  border-radius: 12px 0px 0px 0px;
+}
+
+.btn{
+  border: none;
+  background-image: -webkit-linear-gradient(to-bottom, #f4f1ee, #fff);
+  background-image: linear-gradient(to-bottom, #f4f1ee, #fff);
+  border-radius: 50%;
+  box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, .3), inset 0px 4px 1px 1px white, inset 0px -3px 1px 1px rgba(204,198,197,.5); 
+  height: 70px;
+  margin: 5px 5px 5px 5px;
+  width: 70px;			
+  position: relative;
+  -webkit-transition: all .1s linear;
+  transition: all .1s linear;
+}
+
+.btn:after{
+  color:#e9e6e4;
+  content: "";
+  display: block;
+  font-size: 30px;
+  height: 30px;
+  text-decoration: none;
+  text-shadow: 0px -1px 1px #bdb5b4, 1px 1px 1px white;
+  position: absolute;
+  width: 30px;
+  transition: all 0.1s;
+}
+
+.btn:hover{
+  background-image: -webkit-linear-gradient(to bottom, #fff, #f4f1ee);
+  background-image: linear-gradient(to bottom, #fff, #f4f1ee);
+  color:#0088cc;
+}
+
+.sidebar:after {
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 400; 
+  content: "\f086";
+  left: 17px;
+  top: 19px;
+  color:#0011ff4b;
+  /*text-shadow:0px 0px 6px #0011ff4b;*/
+  transition: all .2s linear;
+}
+
+.sidebar:hover:after{
+  color:#0011ff;
+  text-shadow:0px 0px 6px #0011ff;
+  transition: all .2s linear;
+}
+
+.active.sidebar:after {
+  color:#0011ff;
+}
+
+.settings:after {
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 700; 
+  content: "\f085";
+  left: 17px;
+  top: 19px;
+  color:#5f5f5f4b;
+  text-shadow:0px 0px 6px #5f5f5f4b;
+  transition: all .2s linear;
+}
+
+.settings:hover:after{
+  color:#5f5f5f;
+  text-shadow:0px 0px 6px #5f5f5f;
+  transition: all .2s linear;
+}
+
+

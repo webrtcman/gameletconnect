@@ -2,13 +2,17 @@ import { BrowserWindowConstructorOptions } from 'electron'
 
 
  export const mainWindowConfig: BrowserWindowConstructorOptions = {
-        width: 1270,
-        height: 720,
+        width: 1600,
+        height: 900,
         resizable: true,
-        transparent: true,
         fullscreenable: true,
-        backgroundColor: '#abffffff',
+        //frame: false,
+        //transparent: true,
+        backgroundColor: '#ffffff',
         webPreferences: {
-            contextIsolation: false
+            nodeIntegration: true,
+            webSecurity: false,
+            //devTools: false
+            
         }
 }

@@ -1,1 +1,17 @@
-<router-outlet></router-outlet>
+<div *ngIf="bIntroDisplayed" class="wrapper">
+  <as-split direction="horizontal">
+    <as-split-area class="main-container" [size]="90">
+      <div class="menu-overlay"><!-- *ngIf="!bShowSidebar"> -->
+        <button [ngClass]="{active: bShowSidebar}" (click)="bShowSidebar = !bShowSidebar" class="btn sidebar"></button>
+        <!--<button (click)="bShowSidebar = !bShowSidebar" class=" btn settings"></button>-->
+      </div>
+      <iframe src="https://recordingstudio.gamelet.eu"></iframe>
+    </as-split-area>
+    <as-split-area class="side-container" *ngIf="bShowSidebar" [size]="10">
+     
+    </as-split-area>
+  </as-split>
+</div>
+
+
+<app-intro (animationCovering)="onIntroCoveringScreen()"></app-intro>

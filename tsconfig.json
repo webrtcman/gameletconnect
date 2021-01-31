@@ -13,5 +13,5 @@
       "resolveJsonModule": true,
       "esModuleInterop": true
     },
-    "exclude": [ "node_modules", "connectclient" ] 
+    "exclude": [ "node_modules", "connectclient", "out" ] 
   }
