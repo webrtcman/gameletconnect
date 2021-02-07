@@ -1,2 +1,40 @@
 <div class="wrapper">
+    <as-split direction="vertical" gutterSize="5">
+        <as-split-area [size]="90">
+            <div class="video-room-container" #videoroom>
+                <ng-container *ngIf="bJoinedLobby; else roomlist">
+                    <div *ngFor="let item of usersInRoom" class="video-frame"
+                        [ngStyle]="{'width.px': calculateSize(true), 'height.px': calculateSize(false)}">
+                        <div class="video-overlay">
+                            {{elSize?.outWidth}}w : {{elSize?.outHeight}}h
+                        </div>
+                    </div>
+                </ng-container>
+                <ng-template #roomlist>
+                    <div class="room-overview">
+                        <h2>Available Rooms:</h2>
+                        <h2 *ngIf="availableRooms.length === 0"><small><i>None</i></small></h2>
+                        <div class="room-tile joinable" data-text="Join" *ngFor="let room of availableRooms"
+                            (click)="onJoinRoomClick(room.id)">
+                            <h4 class="room-label">{{room.name}}&nbsp;&nbsp;&nbsp;
+                                <span>{{room.connectedUsers}}/{{room.maxUsers}}</span>
+                            </h4>
+                        </div>
+                        <div class="room-tile creation-tile">
+                            <label for="room-creation">&nbsp;Room Creation</label>
+                            <input id="room-creation" [(ngModel)]="newRoomName" type="text" placeholder="Enter name...">
+                            <button (click)="onCreateRoomClick()" class="btn">Create</button>
+                        </div>
+                    </div>
+                </ng-template>
+            </div>
+        </as-split-area>
+        <as-split-area [size]="10">
+            <div class="control-bar">
+                <button (click)="onSetNameClick()" class="btn">Debug Set Name</button>
+                <button (click)="onAdd()" class="btn">Debug add frame</button>
+                <button (click)="bJoinedLobby = !bJoinedLobby" class="btn">Room View</button>
+            </div>
+        </as-split-area>
+    </as-split>
 </div>

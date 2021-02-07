@@ -8,8 +8,11 @@ import { RtcClientComponent } from './components/rtcclient/rtcclient.component';
 import { IntroComponent } from './components/intro/intro.component';
 import { AngularSplitModule } from 'angular-split';
 
+import { NgVarDirective } from './directives/ng-var.directive';
+
 @NgModule({
   declarations: [
+    NgVarDirective,
     AppComponent,
     StartComponent,
     MainComponent,

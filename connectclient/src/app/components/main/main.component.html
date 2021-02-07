@@ -1,17 +1,26 @@
 <div *ngIf="bIntroDisplayed" class="wrapper">
-  <as-split direction="horizontal">
+  <as-split  #split
+  direction="horizontal"
+  gutterSize="5"
+  (dragStart)="dragStartHandler($event)"
+  (dragEnd)="dragEndHandler($event)"
+  (gutterClick)="splitGutterClick($event)" direction="horizontal"
+  >
     <as-split-area class="main-container" [size]="90">
-      <div class="menu-overlay"><!-- *ngIf="!bShowSidebar"> -->
-        <button [ngClass]="{active: bShowSidebar}" (click)="bShowSidebar = !bShowSidebar" class="btn sidebar"></button>
+      <div>
+      <div class="menu-overlay">
+        <button [ngClass]="{active: bShowSidebar}" (click)="bShowSidebar = !bShowSidebar" class="rtc-btn sidebar"></button>
         <!--<button (click)="bShowSidebar = !bShowSidebar" class=" btn settings"></button>-->
       </div>
-      <iframe src="https://recordingstudio.gamelet.eu"></iframe>
+      <iframe frameborder="0" src="https://recordingstudio.gamelet.eu"></iframe>
+
+      <div [hidden]="bShowIframeHider === false" class="hack-iframe-hider"></div>
+    </div>
     </as-split-area>
-    <as-split-area class="side-container" *ngIf="bShowSidebar" [size]="10">
-     
+    <as-split-area class="side-container" *ngIf="bShowSidebar" minSize="15" maxSize="45" [size]="20">
+      <app-rtcclient></app-rtcclient>
     </as-split-area>
   </as-split>
 </div>
-
 
 <app-intro (animationCovering)="onIntroCoveringScreen()"></app-intro>
