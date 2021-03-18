@@ -1,0 +1,73 @@
+<div *ngIf="bLoaded">
+    <h2>Audio</h2>
+    <h3>Speaker:</h3>
+    <select (change)="onAudioOutSelect()" [(ngModel)]="selectedAudioOutDeviceId" name="audioOutSelect">
+        <option *ngFor="let device of audioOutDevices" [selected]="device.deviceId === selectedAudioOutDeviceId"
+            value="{{ device.deviceId }}">{{ device.label }}</option>
+    </select>
+    <h3>Microphone:</h3>
+    <select (change)="onAudioInSelect()" [(ngModel)]="selectedAudioInDeviceId" name="audioInSelect">
+        <option *ngFor="let device of audioInDevices" [selected]="device.deviceId === selectedAudioInDeviceId"
+            value="{{ device.deviceId }}">{{ device.label }}</option>
+    </select>
+    <div class="test-container">
+        <span (click)="onTestMicrophoneClick()" class="test-btn">
+            <a><i class="fa fa-lg fa-microphone"></i></a>
+            <small>Test</small>
+        </span>
+        <span #audiometer class="audiometer"></span>
+    </div>
+    <h3>
+        <label class="control-switch">
+            <input type="checkbox">
+            <span></span>
+            <i></i>
+        </label>
+        <span>&nbsp;&nbsp;Background Noise Suppression</span>
+
+    </h3>
+
+    <h3>
+        <label class="control-switch">
+            <input type="checkbox">
+            <span></span>
+            <i></i>
+        </label>
+        <span>&nbsp;&nbsp;Echo Cancellation</span>
+
+    </h3>
+
+    <h3>
+        <label class="control-switch">
+            <input type="checkbox">
+            <span></span>
+            <i></i>
+        </label>
+        <span>&nbsp;&nbsp;Push-to-talk</span>
+
+    </h3>
+    <br><br>
+    <h2>Video</h2>
+    <h3>Camera:</h3>
+    <select (change)="onVideoSelect()" [(ngModel)]="selectedVideoDeviceId" name="videoSelect">
+        <option *ngFor="let device of videoDevices" [selected]="device.deviceId === selectedVideoDeviceId"
+            value="{{ device.deviceId }}">{{ device.label }}</option>
+    </select>
+    <div class="test-container">
+        <span (click)="onTestVideoClick()" class="test-btn">
+            <a><i class="fa fa-lg fa-video"></i></a>
+            <small>Test</small>
+        </span>
+        <video [srcObject]="testVideoStream" autoplay></video>
+    </div>
+    <h3>
+        <label class="control-switch">
+            <input type="checkbox">
+            <span></span>
+            <i></i>
+        </label>
+        <span>&nbsp;&nbsp;Show speaking users on top</span>
+
+    </h3>
+</div>
+<app-loading-animation *ngIf="!bLoaded"></app-loading-animation>

@@ -1,8 +1,9 @@
 export class User {
-    userId: string;
-    username: string;
+    id: string;
+    name: string;
     bIsOwner: boolean;
-    bAudioActive: boolean;
-    bVideoActive: boolean;
+    bMicroActive: boolean;
+    bRoomSoundActive: boolean;
+    bCamActive: boolean;
     bScreenSharing: boolean;
 }

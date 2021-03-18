@@ -21,8 +21,10 @@
     "@angular/router": "~11.0.5",
     "@types/electron": "^1.6.10",
     "angular-split": "^5.0.0",
+    "mediasoup-client": "^3.6.29",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
+    "web-audio-peak-meter": "^2.0.1",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

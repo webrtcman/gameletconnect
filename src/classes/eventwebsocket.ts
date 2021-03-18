@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 
+const HANDSHAKE_TIMEOUT = parseInt(process.env.HANDSHAKE_TIMEOUT);
 /**
  * A wrapper for the awesome ws module (https://www.npmjs.com/package/ws)
  * that sends & parses JSON data to emit and listen to custom events.
@@ -11,12 +12,12 @@ const WebSocket = require('ws');
  */
 export class EventWebSocket {
 
-    private socket: WebSocket;
+    private socket: typeof WebSocket;
     private callbacks: Map<string, Function>;
 
     constructor(url: string) {
        
-        this.socket = new WebSocket(url); 
+        this.socket = new WebSocket(url, { handshakeTimeout: HANDSHAKE_TIMEOUT }); 
       
         this.callbacks = new Map<string, Function>();
 
@@ -27,7 +28,7 @@ export class EventWebSocket {
     /**
      * Binds the event handlers for WebSockets.
      * Most importantly binds the onmessage handler
-     * our custom event handler
+     * to our custom event handler
      */
     private registerKeyEvents(): void{
         this.socket.onopen = () => {
@@ -35,6 +36,10 @@ export class EventWebSocket {
                 console.log("connection established");
             });
         };
+        this.socket.on('error', (err) => {
+            this.trigger('error', err);
+        });
+
         this.socket.onclose = () => {
             this.trigger('close',null);
         };

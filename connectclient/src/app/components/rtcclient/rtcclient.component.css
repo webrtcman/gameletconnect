@@ -3,6 +3,7 @@
     height: 100%;
     position: relative;
     box-sizing: border-box;
+    background: #004;
     overflow-y: hidden;
 }
 
@@ -12,22 +13,53 @@
     width: 100%;
 }
 
-.control-bar {
-    background-color: rgb(54, 54, 54);
+.controls {
+    overflow: hidden;
 }
 
+.control-bar {
+    position: relative;
+    width: 100%;
+    background-color: rgb(36, 36, 36);
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+}
+
+.pre-connect-overlay {
+    background: rgb(0, 0, 68);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: visibility 0.2s;
+}
+
+.pre-connect-overlay .content {
+    position: absolute;
+    top: 50%;  
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.rtc-content {
+    position: relative;
+}
 
 .video-room-container{
+    position: absolute;
     background-color: #004;
-    width: 100%;
-    height: 90%;
     display: flex;
     align-content: center;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     vertical-align: middle;
-    position: absolute;
     left: 0px;
     bottom: 0px;
     top: 0px;
@@ -66,17 +98,19 @@
     overflow: hidden;
 }
 
-.room-tile::before {
+
+
+.joinable::before {
     content: '_';
     color: #00000000;
     position: absolute;
     top: 0;
     bottom: 0;
-    left: -100%;
+    left: -150%;
     height: 100%;
     width: 300px;
-    background: linear-gradient(70deg, transparent, transparent, rgba(255, 255, 255, 0.8), transparent, transparent);
-    transition: 0.01s;
+    background: linear-gradient(70deg, transparent, transparent, rgba(255, 255, 255, 0.9), transparent, transparent);
+    transition: all 0.01s;
 }
 
 .room-tile:hover {
@@ -87,15 +121,16 @@
 
 }
 
-.room-tile:hover::before {
-    left: 100%;
-    transition: 0.4s;
+.joinable:hover::before {
+    left: 110%;
+    transition: all 0.4s;
 }
 
 .room-tile::after {
     position: absolute;
     top: 50%;  
     left: 50%;
+    width: 0%;
     transform: translate(-50%, -50%);
     text-align: center;
     content: attr(data-text);
@@ -104,11 +139,13 @@
     border-radius: 10px;
     font-weight: 600;
     color: #fff;
-    background-color: rgb(13, 13, 122);
+    background-color: rgba(81, 255, 0, 0.7);
+    box-shadow: 0 0 5px rgba(81, 255, 0, 0.7);
     opacity: 0;
 }
 
 .room-tile.joinable:hover::after {
+    width: 30%;
     opacity: 1;
     transition: all 0.5s;
 
@@ -137,25 +174,6 @@ label {
     cursor: default;
 }
 
-#room-creation {
-    width: 60%;
-    padding: 10px;
-    margin-right: 5%;
-    border: 0;
-    background: rgba(240, 240, 240, 0.7);
-    border: none;
-    border-radius: 14px;
-    outline: none;
-    font-size: 1rem;
-    transition: 0.25s;
-}
-
-#room-creation:hover {
-    color: rgb(95, 95, 95);
-    background-color: rgba(255, 255, 255, 0.9);
-    border: none;
-}
-
 
 .video-frame {
     margin: 3px;
@@ -167,7 +185,6 @@ label {
     display: inline-block;
     box-shadow: 0px 12px 22px rgba(255, 255, 255, 0.4);
     background: rgb(192, 191, 191);
-    animation: show 0.5s ease;
 }
 
 .video-overlay {
@@ -183,13 +200,60 @@ label {
     background-color: rgba(90, 90, 90, 0.609);
 }
 
-@keyframes show {
+
+
+
+
+/*================ Loading Anim ============== */
+.loading-container .box {
+    margin: auto;
+    position: relative;
+    width: 300px;
+    height: 300px;
+    animation: rotation 10s linear infinite;
+}
+
+.loading-container .box .circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #38c1ff;
+    animation: shrink-grow 5s linear infinite;
+}
+
+.loading-container .box .circle:nth-child(2) {
+    background: #ff3378;
+    animation-delay: -2.5s;
+}
+
+
+@keyframes shrink-grow {
+    0%{
+        transform: scale(1);
+        transform-origin: left;
+    }
+    50%{
+        transform: scale(0);
+        transform-origin: left;
+    }
+    50.01%{
+        transform: scale(0);
+        transform-origin: right;
+    }
+    100%{
+        transform: scale(1);
+        transform-origin: right;
+    }
+}
+
+@keyframes rotation {
     0% {
-        opacity: 0;
-        transform: scale(0.2) translateY(150px);
+        transform:rotate(0deg);
     }
     100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
+        transform:rotate(360deg);
     }
 }

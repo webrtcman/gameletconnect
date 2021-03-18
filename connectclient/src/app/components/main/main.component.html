@@ -1,25 +1,27 @@
 <div *ngIf="bIntroDisplayed" class="wrapper">
-  <as-split  #split
+  <as-split  
+  #split
   direction="horizontal"
+  useTransition="true"
   gutterSize="5"
   (dragStart)="dragStartHandler($event)"
   (dragEnd)="dragEndHandler($event)"
-  (gutterClick)="splitGutterClick($event)" direction="horizontal"
+  (gutterClick)="splitGutterClick($event)"
   >
-    <as-split-area class="main-container" [size]="90">
+    <as-split-area class="main-container" [size]="75">
       <div>
       <div class="menu-overlay">
-        <button [ngClass]="{active: bShowSidebar}" (click)="bShowSidebar = !bShowSidebar" class="rtc-btn sidebar"></button>
-        <!--<button (click)="bShowSidebar = !bShowSidebar" class=" btn settings"></button>-->
+        <span [ngClass]="{active: bShowSidebar}" (click)="onConnectClick()" class="light-blue control-btn"><a> <i class="fa fa-2x fa-users"></i> </a></span>
       </div>
       <iframe frameborder="0" src="https://recordingstudio.gamelet.eu"></iframe>
 
+      <!--This is needed to prevent weird behavior from rescaling an iframe-->
       <div [hidden]="bShowIframeHider === false" class="hack-iframe-hider"></div>
     </div>
     </as-split-area>
-    <as-split-area class="side-container" *ngIf="bShowSidebar" minSize="15" maxSize="45" [size]="20">
-      <app-rtcclient></app-rtcclient>
-    </as-split-area>
+      <as-split-area class="side-container slide-in-right" *ngIf="bActivateSidebar" [visible]="bShowSidebar" minSize="25" maxSize="99" [size]="25">
+        <app-rtcclient></app-rtcclient>
+      </as-split-area>
   </as-split>
 </div>
 

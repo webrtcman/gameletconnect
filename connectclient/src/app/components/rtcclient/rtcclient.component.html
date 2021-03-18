@@ -1,40 +1,89 @@
 <div class="wrapper">
-    <as-split direction="vertical" gutterSize="5">
-        <as-split-area [size]="90">
+    <as-split direction="vertical" gutterSize="3">
+
+        <as-split-area class="rtc-content" [size]="80">
             <div class="video-room-container" #videoroom>
-                <ng-container *ngIf="bJoinedLobby; else roomlist">
-                    <div *ngFor="let item of usersInRoom" class="video-frame"
+                <!--ROOM LIST START-->
+                <!-- <ng-template #roomlist> -->
+                <div *ngIf="!bJoinedLobby" class="room-overview">
+                    <h2>Available Rooms:</h2>
+                    <h2 *ngIf="availableRooms.length === 0"><small><i>None</i></small></h2>
+                    <div @ellipticslide class="room-tile joinable" data-text="Join" *ngFor="let room of availableRooms"
+                        (click)="onJoinRoomClick(room.id)">
+                        <h4 class="room-label">{{room.name}}&nbsp;&nbsp;&nbsp;
+                            <span>{{room.connectedUsers}}/{{room.maxUsers}} users</span>
+                        </h4>
+                    </div>
+                    <div class="room-tile creation-tile">
+                        <label for="room-creation">&nbsp;Room Creation</label>
+                        <input id="room-creation" class="text-input" [(ngModel)]="newRoomName" type="text"
+                            placeholder="Enter name...">
+                        <button (click)="onCreateRoomClick()" class="btn">Create</button>
+                    </div>
+                </div>
+                <!-- </ng-template> -->
+                <!--ROOM LIST END-->
+                <!--VIDEO ROOM START-->
+                <ng-container *ngIf="bJoinedLobby">
+                    <div @ellipticslide *ngFor="let userStreamMap of userStreamMaps" class="video-frame" [id]="userStreamMap.user.id"
                         [ngStyle]="{'width.px': calculateSize(true), 'height.px': calculateSize(false)}">
+                        <video autoplay style="width: 100%; height: 100%;" *ngIf="userStreamMap.video" [srcObject]="userStreamMap.video"></video>
+                        <audio *ngIf="userStreamMap.audio" autoplay [srcObject]="userStreamMap.audio"></audio>
                         <div class="video-overlay">
-                            {{elSize?.outWidth}}w : {{elSize?.outHeight}}h
+                            {{ userStreamMap.user.name }}
                         </div>
                     </div>
                 </ng-container>
-                <ng-template #roomlist>
-                    <div class="room-overview">
-                        <h2>Available Rooms:</h2>
-                        <h2 *ngIf="availableRooms.length === 0"><small><i>None</i></small></h2>
-                        <div class="room-tile joinable" data-text="Join" *ngFor="let room of availableRooms"
-                            (click)="onJoinRoomClick(room.id)">
-                            <h4 class="room-label">{{room.name}}&nbsp;&nbsp;&nbsp;
-                                <span>{{room.connectedUsers}}/{{room.maxUsers}}</span>
-                            </h4>
-                        </div>
-                        <div class="room-tile creation-tile">
-                            <label for="room-creation">&nbsp;Room Creation</label>
-                            <input id="room-creation" [(ngModel)]="newRoomName" type="text" placeholder="Enter name...">
-                            <button (click)="onCreateRoomClick()" class="btn">Create</button>
-                        </div>
-                    </div>
-                </ng-template>
+                <!--VIDEO ROOM END-->
             </div>
         </as-split-area>
-        <as-split-area [size]="10">
+
+        <!-- <as-split-area [hidden]="!bChatOpen" [minSize]="10" [size]="10">
+            <app-chatclient [chathistory]="chatHistory" [users]="usersInRoom" (onNewMessage)="onChatMessageSubmit($event)"></app-chatclient>
+        </as-split-area> -->
+
+        <as-split-area [hidden]="bShowPreConnectOverlay === true" class="controls" [minSize]="10" [size]="13">
             <div class="control-bar">
-                <button (click)="onSetNameClick()" class="btn">Debug Set Name</button>
-                <button (click)="onAdd()" class="btn">Debug add frame</button>
-                <button (click)="bJoinedLobby = !bJoinedLobby" class="btn">Room View</button>
+                <div (click)="onSettingsClick()" [ngClass]="{active: bSettingsActive}" class="settings-btn white control-btn">
+                    <a><i class="fas fa-cog"></i></a>
+                </div>
+                <span (click)="onMicroClick()" [ngClass]="{active: client.bMicroActive}" class="orange control-btn">
+                    <a><i class="fas fa-2x fa-microphone"></i></a>
+                </span>
+                <span [ngClass]="{active: client.bCamActive}" (click)="onVideoClick()" class="green control-btn">
+                    <a><i class="fas fa-2x fa-video"></i></a>
+                </span>
+                <span [ngClass]="{active: client.bScreenSharing}" (click)="onShareScreenClick()"  [hidden]="bJoinedLobby===false" class="blue control-btn">
+                    <a><i class="fas fa-2x fa-clone"></i></a>
+                </span>
+                <span [ngClass]="{active: bChatOpen}" (click)="onToggleChatClick()" [hidden]="bJoinedLobby===false" class="white control-btn">
+                    <a><i class="fa fa-2x fa-comments"></i></a>
+                </span>
+                <span (click)="onJoinRoomClick('0'); bJoinedLobby = false" [hidden]="bJoinedLobby===false"  class="red control-btn">
+                    <a><i class="fa fa-2x fa-times"></i></a>
+                </span>
             </div>
         </as-split-area>
     </as-split>
+
+
+
+    <!--OVERLAY FOR LOADING & NAME SELECTION-->
+    <div [hidden]="bShowPreConnectOverlay === false" class="pre-connect-overlay">
+        <div class="content">
+            <app-loading-animation [hidden]="bLoading === false"></app-loading-animation>
+            <div *ngIf="bShowNameInput">
+                <div class="room-tile creation-tile">
+                    <label for="name-creation">&nbsp;Type in your name</label>
+                    <input id="name-creation" class="text-input" [(ngModel)]="newUsername" type="text"
+                        placeholder="Enter name...">
+                    <button (click)="onSetNameClick()" class="btn">Create</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <app-popup #test [windowType]="'info'" [title]="'Settings'">
+        <app-media-settings></app-media-settings>
+    </app-popup>
 </div>

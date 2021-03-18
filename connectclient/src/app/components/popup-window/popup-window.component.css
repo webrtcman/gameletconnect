@@ -1,0 +1,66 @@
+
+.popup-window {
+    z-index: 999;
+    backdrop-filter: blur(3px);
+    position: fixed;
+    min-width: 300px;
+    max-width: 65vw;
+    box-shadow: 0 11px 15px -7px rgba(255, 255, 255, 0.2), 0 24px 38px 3px rgba(255, 255, 255, 0.14), 0 9px 46px 8px rgba(255, 255, 255, 0.12);
+}
+
+.window-titlebar {
+    position: relative;
+    text-align: center;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    color: #fff;
+}
+
+.window-titlebar:hover {
+    cursor: grab;
+}
+.title-info {
+    background-color: rgba(33, 86, 109, 0.95); 
+}
+
+.title-warning {
+    background-color: rgba(109, 98, 33, 0.95);
+}
+
+.title-danger {
+    background-color: rgba(109, 38, 33, 0.95);
+}
+
+.window-close-btn {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.window-close-btn:hover {
+  cursor: pointer;
+}
+
+
+.window-content {
+    opacity: 1;
+    padding: 30px;
+    max-height: 60vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: rgba(59, 59, 59, 0.95);
+    color: white;
+}
+
+.window-content::-webkit-scrollbar{
+    width: 0.5em;
+}
+
+.window-content::-webkit-scrollbar-track{
+    background: rgba(175, 175, 175, 0.2);
+}
+
+.window-content::-webkit-scrollbar-thumb {
+    background: rgba(251, 156, 2, 0.3);
+    border-radius: 3%;
+}

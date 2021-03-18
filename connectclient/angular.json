@@ -13,6 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": [ "mediasoup-client", "web-audio-peak-meter"],
             "outputPath": "dist/connectclient",
             "index": "src/index.html",
             "main": "src/main.ts",
