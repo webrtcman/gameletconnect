@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { PopupWindowComponent } from './../popup-window/popup-window.component';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import webAudioPeakMeter from 'web-audio-peak-meter';
 import { fadeInOut } from 'src/app/animations/rtc_animations';
 import CONFIG from 'src/config/mediasoup.json';

@@ -1,4 +1,7 @@
-import { WebsocketService } from './services/electron.service';
+import { MediasoupService } from './services/mediasoup.service';
+import { AppInterCompService } from './services/app-inter-comp.service';
+import { RtcInterCompService } from './services/rtc-inter-comp.service';
+import { WebsocketService } from './services/websocket.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -21,6 +24,10 @@ import { RtcOverlayComponent } from './components/rtc-overlay/rtc-overlay.compon
 import { PopupWindowComponent } from './components/popup-window/popup-window.component';
 import { MediaSettingsComponent } from './components/media-settings/media-settings.component';
 import { RoomCreatorComponent } from './components/room-creator/room-creator.component';
+import { StarfieldBackgroundComponent } from './components/starfield-background/starfield-background.component';
+import { PopupManagerComponent } from './components/popup-manager/popup-manager.component';
+import { RoomOverviewComponent } from './components/room-overview/room-overview.component';
+import { RoomComponent } from './components/room/room.component';
 
 
 @NgModule({
@@ -39,6 +46,10 @@ import { RoomCreatorComponent } from './components/room-creator/room-creator.com
     PopupWindowComponent,
     MediaSettingsComponent,
     RoomCreatorComponent,
+    StarfieldBackgroundComponent,
+    PopupManagerComponent,
+    RoomOverviewComponent,
+    RoomComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,7 +58,7 @@ import { RoomCreatorComponent } from './components/room-creator/room-creator.com
     AngularSplitModule,
     FormsModule
   ],
-  providers: [WebsocketService],
+  providers: [WebsocketService, RtcInterCompService, AppInterCompService, MediasoupService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

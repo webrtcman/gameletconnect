@@ -27,7 +27,6 @@
  * Standard animation support in Angular DOES NOT require any polyfills (as of Angular 6.0).
  */
 // import 'web-animations-js';  // Run `npm install --save web-animations-js`.
-
 /**
  * By default, zone.js will patch all possible macroTask and DomEvents
  * user can disable parts of macroTask/DomEvents patch by setting following flags
@@ -51,6 +50,7 @@
  *  (window as any).__Zone_enable_cross_context_check = true;
  *
  */
+(window as any).__Zone_disable_requestAnimationFrame = true; // disable patch requestAnimationFrame
 
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.

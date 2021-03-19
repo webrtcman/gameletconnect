@@ -1,7 +1,7 @@
 <div class="wrapper">
     <as-split direction="vertical" gutterSize="3">
 
-        <as-split-area class="rtc-content" [size]="80">
+        <as-split-area class="rtc-content" [size]="87">
             <div class="video-room-container" #videoroom>
                 <!--ROOM LIST START-->
                 <!-- <ng-template #roomlist> -->
@@ -14,12 +14,9 @@
                             <span>{{room.connectedUsers}}/{{room.maxUsers}} users</span>
                         </h4>
                     </div>
-                    <div class="room-tile creation-tile">
-                        <label for="room-creation">&nbsp;Room Creation</label>
-                        <input id="room-creation" class="text-input" [(ngModel)]="newRoomName" type="text"
-                            placeholder="Enter name...">
-                        <button (click)="onCreateRoomClick()" class="btn">Create</button>
-                    </div>
+                    <span (click)="onCreateRoomClick()" class="orange control-btn control-wide">
+                        <a><i class="fas fa-lg fa-plus-circle"></i><p>&nbsp;Create Room</p></a>
+                    </span>
                 </div>
                 <!-- </ng-template> -->
                 <!--ROOM LIST END-->
@@ -83,7 +80,10 @@
         </div>
 
     </div>
-    <app-popup #test [windowType]="'info'" [title]="'Settings'">
+    <app-popup #settings [windowType]="'info'" [title]="'Settings'">
         <app-media-settings></app-media-settings>
+    </app-popup>
+    <app-popup #roomCreation [windowType]="'info'" [title]="'Room Creation'">
+        <app-room-creator [windowRef]="roomCreation"></app-room-creator>
     </app-popup>
 </div>

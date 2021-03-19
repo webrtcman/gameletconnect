@@ -83,7 +83,7 @@ function growAnimation(): AnimationReferenceMetadata {
         ])),
         {
             params: {
-                duration: '0.5s',
+                duration: '0.4s',
                 easing: 'ease-out'
             }
         }
@@ -106,7 +106,7 @@ function shrinkAnimation(): AnimationReferenceMetadata {
         ])),
         {
             params: {
-                duration: '0.5s',
+                duration: '0.3s',
                 easing: 'ease-in'
             }
         }

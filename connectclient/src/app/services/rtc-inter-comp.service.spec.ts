@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WebsocketService } from './websocket.service';
+import { RtcInterCompService } from './rtc-inter-comp.service';
 
-describe('WebsocketService', () => {
-  let service: WebsocketService;
+describe('RtcInterCompService', () => {
+  let service: RtcInterCompService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(WebsocketService);
+    service = TestBed.inject(RtcInterCompService);
   });
 
   it('should be created', () => {

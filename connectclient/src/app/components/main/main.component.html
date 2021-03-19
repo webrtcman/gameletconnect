@@ -19,8 +19,10 @@
       <div [hidden]="bShowIframeHider === false" class="hack-iframe-hider"></div>
     </div>
     </as-split-area>
-      <as-split-area class="side-container slide-in-right" *ngIf="bActivateSidebar" [visible]="bShowSidebar" minSize="25" maxSize="99" [size]="25">
-        <app-rtcclient></app-rtcclient>
+      <as-split-area class="side-container" *ngIf="bActivateSidebar" [visible]="bShowSidebar" minSize="25" maxSize="99" [size]="25">
+        <app-starfield-background></app-starfield-background>
+        <app-rtc-side-client></app-rtc-side-client>
+        <!-- <app-rtcclient></app-rtcclient> -->
       </as-split-area>
   </as-split>
 </div>

@@ -1,7 +1,9 @@
 <div class="chat-container">
-    <h5 style="color: #fff" *ngFor="let message of chathistory">
+    <h5 style="color: #fff" *ngFor="let message of chatHistoryRef">
         <small>{{displayName(message.senderId)}}:</small> {{message.message}}
     </h5> 
 </div>
-<input [(ngModel)]="chatmessage" type="text">
-<button (click)="onSendClick()">send</button>
+<div class="new-msg-container">
+    <input (keyup.enter)="onMsgSubmit()" [(ngModel)]="chatmessage" type="text">
+    <button (click)="onMsgSubmit()">send</button>
+</div>

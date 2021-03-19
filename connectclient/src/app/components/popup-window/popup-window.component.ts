@@ -1,6 +1,6 @@
 import { WindowType } from './../../classes/enums';
 import { Vector2 } from './../../classes/vector2';
-import { Component, Input, OnInit, Renderer2 } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ElementRef } from '@angular/core';
 import { ellipticSlide, growShrink } from 'src/app/animations/rtc_animations';
 
 @Component({
@@ -30,7 +30,7 @@ export class PopupWindowComponent implements OnInit {
   dragging: (event: any) => void;
   mouseup: (event: any) => void;
 
-  constructor(private renderer: Renderer2) {
+  constructor(private renderer: Renderer2, private popup: ElementRef) {
     this.bWindowVisible = false;
     this.origPos = new Vector2();
     this.currPos = new Vector2();
@@ -51,6 +51,8 @@ export class PopupWindowComponent implements OnInit {
 
     if (position) {
       this.origPos = position;
+      this.origPos.x -= this.popup.nativeElement.offsetWidth;
+      this.origPos.y -= this.popup.nativeElement.offsetHeight;
       Object.assign(this.currPos, this.origPos);
     }
     this.bWindowVisible = true;

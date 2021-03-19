@@ -1,4 +1,6 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { RtcInterCompService } from './../../services/rtc-inter-comp.service';
+import { WebsocketService } from './../../services/websocket.service';
+import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { ChatMessage } from 'src/app/classes/chatmessage';
 import { User } from 'src/app/classes/user';
 
@@ -9,23 +11,41 @@ import { User } from 'src/app/classes/user';
 })
 export class ChatclientComponent implements OnInit {
 
-  @Input('chathistory') chathistory: ChatMessage[];
+  chatHistoryRef: ChatMessage[];
   @Input('users') users: User[];
-  @Output('onNewMessage') onNewMessage = new EventEmitter<string>();
   chatmessage: string = '';
 
 
-  constructor() { }
-
+  constructor(
+    private changeDetection: ChangeDetectorRef,
+    private websocketService: WebsocketService,
+    private rtcInterCompService: RtcInterCompService
+  ) 
+  { 
+  }
+  
   ngOnInit(): void {
+    this.users = this.rtcInterCompService.usersInRoom;
+    this.chatHistoryRef = this.rtcInterCompService.chatHistory;
   }
 
-  onSendClick() {
+  registerWebsocketEvents() {
+    this.websocketService.on('lobby::chathistory', (event, data) => {
+      this.chatHistoryRef = data;
+      this.changeDetection.markForCheck();
+    });
+    this.websocketService.on('lobby::chatmessage', (event, data) => {
+      this.chatHistoryRef.push(data);
+      this.changeDetection.markForCheck();
+    })
+  }
+
+  public onMsgSubmit(){
     if(this.chatmessage === '')
       return;
 
-    this.onNewMessage.emit(this.chatmessage);
-    this.chatmessage = '';
+    this.websocketService.sendChatMessage(this.chatmessage);
+    this.chatmessage = "";  
   }
 
   displayName(senderId: string){

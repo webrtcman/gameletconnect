@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { WebsocketService } from './electron.service';
+import { WebsocketService } from './websocket.service';
 import * as mediasoupClient from 'mediasoup-client';
 import { MediaKind, RtpCapabilities, RtpParameters } from 'mediasoup-client/lib/types';
 import { Transport, DtlsParameters } from 'mediasoup-client/lib/types';

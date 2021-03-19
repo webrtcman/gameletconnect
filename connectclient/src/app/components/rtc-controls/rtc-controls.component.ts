@@ -9,6 +9,7 @@ import { User } from 'src/app/classes/user';
 export class RtcControlsComponent implements OnInit {
 
   public bLoading: boolean = true;
+  public bMicroActive = false;
   public bShowNameInput = false;
   public bShowPreConnectOverlay: boolean = false;
   public bJoinedLobby: boolean = false;
@@ -21,6 +22,7 @@ export class RtcControlsComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    this.client = new User()
   }
 
   onSettingsClick(){}

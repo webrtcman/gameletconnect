@@ -2,7 +2,23 @@ body {
   padding: 0;
   background: rgb(255, 255, 255);
   margin: 0;
+  box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .as-split-area>div {
@@ -91,6 +107,20 @@ iframe {
 
 }
 
+.control-btn:hover {
+  cursor: pointer;
+}
+
+.control-wide {
+  margin-top: 1em;
+  width: 150px;
+}
+
+.control-wide a p {
+  font-weight: 500;
+  font-size: 1em;
+}
+
 .control-small {
   padding: 10px;
   top: 0;
@@ -103,9 +133,9 @@ iframe {
 .settings-btn {
   position: absolute;
   padding: 10px;
-  top: 0;
-  right: 0;
-  margin: 1%;
+  top: 1%;
+  right: 1%;
+  margin: 2%;
   width: 10px;
   height: 18px;
 }
@@ -144,7 +174,7 @@ iframe {
   height: 10px;
   border-radius: 10px;
   transition: 0.3s;
-  transition-delay: 0.2s;
+  transition-delay: 0.05s;
 }
 
 .control-btn:hover::before,
@@ -165,7 +195,7 @@ iframe {
   height: 10px;
   border-radius: 10px;
   transition: 0.3s;
-  transition-delay: 0.2s;
+  transition-delay: 0.05s;
 }
 
 .control-btn:hover::after,
@@ -186,6 +216,11 @@ iframe {
   background: linear-gradient(to left,rgba(255, 255, 255, 0.15), transparent);
   transform: skewX(45deg) translateX(0);
   transition: 0.3s;
+}
+
+.control-wide a::before {
+  content: '';
+  background: #ffffff00;
 }
 
 .control-btn:hover a::before,
@@ -243,8 +278,8 @@ iframe {
 .control-switch span {
   position: relative;
   display: block;
-  width: 4vw;
-  height: 2vw;
+  width: 3vw;
+  height: 1.5vw;
   border-radius: 40px;
   box-shadow: inset 0 2px 15px rgba(0,0,0,0.2), 
               inset 0 2px 2px rgba(0,0,0,0.2), 
@@ -255,8 +290,8 @@ iframe {
   position: absolute;
   top: 0;
   left: 0;
-  width: 2vw;
-  height: 2vw;
+  width: 1.5vw;
+  height: 1.5vw;
   background: linear-gradient(to bottom, #444, #222);
   border-radius: 50%;
   box-shadow: inset 0 2px 5px rgba(0,0,0,0.5)
@@ -267,14 +302,14 @@ iframe {
 }
 
 .control-switch input:checked ~ i {
-  left: 2vw;
+  left: 1.5vw;
 }
 
 .control-switch i::before {
   content: '';
   position: absolute;
-  width: 0.2vw;
-  height: 0.2vw;
+  width: 0.15vw;
+  height: 0.15vw;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -284,8 +319,8 @@ iframe {
               0 0 0.6vw #f00,
               0 0 0.9vw #f00,
               0 0 1.2vw #f00,
-              0 0 1.5vw #f00,
-              0 0 1.8vw #f00;       
+              0 0 1.5vw #f00;
+              /* 0 0 1.8vw #f00;        */
 }
 
 .control-switch input:checked ~ i::before {
@@ -294,8 +329,8 @@ iframe {
               0 0 0.6vw #0f0,
               0 0 0.9vw #0f0,
               0 0 1.2vw #0f0,
-              0 0 1.5vw #0f0,
-              0 0 1.8vw #0f0;
+              0 0 1.5vw #0f0;
+              /* 0 0 1.8vw #0f0; */
 }
 
 select {
@@ -305,6 +340,18 @@ select {
   border-bottom: 2px solid rgba(255, 255, 255, 0.63);
   height: 1.5vw;
   font-size: 0.9em;
+  font-weight: 500;
+  width: 100%;
+}
+
+input[type="text"],input[type="number"] {
+  background-color: rgba(85, 85, 85, 0.2);
+  color: #fff;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.63);
+  padding-top: 3px;
+  padding-bottom: 1px;
+  font-size: 1.2em;
   font-weight: 500;
   width: 100%;
 }

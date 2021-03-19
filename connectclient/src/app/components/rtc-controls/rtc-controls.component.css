@@ -1,0 +1,11 @@
+
+.control-bar {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(36, 36, 36, 0.9);
+    height: 10vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -3,8 +3,11 @@
     height: 100%;
     position: relative;
     box-sizing: border-box;
-    background: #004;
     overflow-y: hidden;
+}
+
+.control-wide {
+    margin-top: 4vh;
 }
 
 .wrapper h2 {
@@ -25,8 +28,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-
 }
 
 .pre-connect-overlay {
@@ -53,7 +54,6 @@
 
 .video-room-container{
     position: absolute;
-    background-color: #004;
     display: flex;
     align-content: center;
     flex-wrap: wrap;
@@ -198,62 +198,4 @@ label {
     padding: 12px;
     border-radius: 12px;
     background-color: rgba(90, 90, 90, 0.609);
-}
-
-
-
-
-
-/*================ Loading Anim ============== */
-.loading-container .box {
-    margin: auto;
-    position: relative;
-    width: 300px;
-    height: 300px;
-    animation: rotation 10s linear infinite;
-}
-
-.loading-container .box .circle {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: #38c1ff;
-    animation: shrink-grow 5s linear infinite;
-}
-
-.loading-container .box .circle:nth-child(2) {
-    background: #ff3378;
-    animation-delay: -2.5s;
-}
-
-
-@keyframes shrink-grow {
-    0%{
-        transform: scale(1);
-        transform-origin: left;
-    }
-    50%{
-        transform: scale(0);
-        transform-origin: left;
-    }
-    50.01%{
-        transform: scale(0);
-        transform-origin: right;
-    }
-    100%{
-        transform: scale(1);
-        transform-origin: right;
-    }
-}
-
-@keyframes rotation {
-    0% {
-        transform:rotate(0deg);
-    }
-    100% {
-        transform:rotate(360deg);
-    }
 }

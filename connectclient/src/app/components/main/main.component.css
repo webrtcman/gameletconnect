@@ -1,6 +1,7 @@
 .wrapper {
   width: 100vw;
   height:100vh;
+  overflow-x: hidden;
 }
   
 .main-container {
@@ -11,6 +12,11 @@
 }
 .main-container::-webkit-scrollbar {
   display: none;
+}
+
+.side-container {
+  background-color: #006;
+  position: relative;
 }
 
 .menu-overlay {

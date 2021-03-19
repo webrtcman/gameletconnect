@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { PopupWindowComponent } from '../popup-window/popup-window.component';
 
 @Component({
   selector: 'app-room-creator',
@@ -7,9 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RoomCreatorComponent implements OnInit {
 
+  @Input('windowRef') windowRef: PopupWindowComponent;
+
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  onCreateClick() {
+    this.windowRef.hideWindow();
+  }
 }

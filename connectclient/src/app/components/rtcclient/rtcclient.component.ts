@@ -3,10 +3,11 @@ import { MediasoupService } from './../../services/mediasoup.service';
 import { ChatMessage } from './../../classes/chatmessage';
 import { User } from './../../classes/user';
 import { Room } from './../../classes/room';
-import { WebsocketService } from '../../services/electron.service';
+import { WebsocketService } from '../../services/websocket.service';
 import { Component, OnInit, ElementRef, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ellipticSlide, growShrink } from 'src/app/animations/rtc_animations';
 import { MediaType } from 'src/app/classes/enums';
+import { Vector2 } from 'src/app/classes/vector2';
 
 @Component({
   selector: 'app-rtcclient',
@@ -17,7 +18,8 @@ import { MediaType } from 'src/app/classes/enums';
 export class RtcClientComponent implements OnInit {
 
   @ViewChild('videoroom') videoroom: ElementRef;
-  @ViewChild('test') test: PopupWindowComponent;
+  @ViewChild('settings') settings: PopupWindowComponent;
+  @ViewChild('roomCreation') roomCreation: PopupWindowComponent;
   public availableRooms: Room[] = [];
   public usersInRoom: User[] = [];
   currRoom: Room;
@@ -39,7 +41,7 @@ export class RtcClientComponent implements OnInit {
   public chatHistory: ChatMessage[];
 
 
-  constructor(private websocketService: WebsocketService, private mediasoupService: MediasoupService , private changeDetection: ChangeDetectorRef) { }
+  constructor( private websocketService: WebsocketService, private mediasoupService: MediasoupService , private changeDetection: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.client = new User();
@@ -296,12 +298,13 @@ export class RtcClientComponent implements OnInit {
   }
 
   public onSettingsClick(): void {
-    this.test.showWindow();
+    this.settings.showWindow();
     this.changeDetection.detectChanges();
   }
 
   public onCreateRoomClick(): void {
     this.websocketService.createLobby(this.newRoomName);
+    this.roomCreation.showWindow(new Vector2(window.innerWidth / 2, window.innerHeight / 2));
   }
 
 
