@@ -17,6 +17,7 @@ export default class Main {
         Main.application = app;
         Main.application.commandLine.appendSwitch('ignore-certificate-errors', 'true');
         Main.application.commandLine.appendSwitch('allow-insecure-localhost', 'true');
+        
         Main.application.once('ready', Main.onReady);
         Main.application.on('window-all-closed', Main.onWindowAllClosed);
 
