@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { RtcInterCompService } from './rtc-inter-comp.service';
+import { InterCompService } from './inter-comp.service';
 
-describe('RtcInterCompService', () => {
-  let service: RtcInterCompService;
+describe('InterCompService', () => {
+  let service: InterCompService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(RtcInterCompService);
+    service = TestBed.inject(InterCompService);
   });
 
   it('should be created', () => {

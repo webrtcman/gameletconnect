@@ -1,3 +1,4 @@
+import { RoomConfig } from 'src/app/classes/roomconfig';
 import { MediaKind, RtpCapabilities, RtpParameters } from 'mediasoup-client/lib/types';
 import { Injectable } from '@angular/core';
 import { IpcRenderer } from 'electron'
@@ -47,8 +48,8 @@ export class WebsocketService {
     this.ipc.send('client::connect');
   }
 
-  public setName(name: string): void {
-    this.ipc.send('client::setname', name);
+  public login(name: string, password: string): void {
+    this.ipc.send('client::login', {name, password});
   }
 
   public sendChatMessage(message: string): void {
@@ -59,8 +60,8 @@ export class WebsocketService {
     this.ipc.send('client::getlobbies');
   }
 
-  public createLobby(lobbyName: string): void {
-    this.ipc.send('client::createlobby', lobbyName);
+  public createLobby(config: RoomConfig): void {
+    this.ipc.send('client::createlobby', config);
   }
 
   public joinLobby(lobbyId: string): void {

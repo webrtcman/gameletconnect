@@ -3,18 +3,18 @@
         <a><i class="fas fa-cog"></i></a>
     </div>
     <span (click)="onMicroClick()" [ngClass]="{active: client.bMicroActive}" class="orange control-btn">
-        <a><i class="fas fa-2x fa-microphone"></i></a>
+        <a><i class="fas fa-lg fa-microphone"></i></a>
     </span>
     <span [ngClass]="{active: client.bCamActive}" (click)="onVideoClick()" class="green control-btn">
-        <a><i class="fas fa-2x fa-webcam"></i></a>
+        <a><i class="fas fa-lg fa-video"></i></a>
     </span>
     <span [ngClass]="{active: client.bScreenSharing}" (click)="onShareScreenClick()"  [hidden]="bJoinedLobby===false" class="blue control-btn">
-        <a><i class="fas fa-2x fa-clone"></i></a>
+        <a><i class="fas fa-lg fa-clone"></i></a>
     </span>
     <span [ngClass]="{active: bChatOpen}" (click)="onToggleChatClick()" [hidden]="bJoinedLobby===false" class="white control-btn">
-        <a><i class="fa fa-2x fa-comments"></i></a>
+        <a><i class="fa fa-lg fa-comments"></i></a>
     </span>
     <span (click)="onJoinRoomClick('0'); bJoinedLobby = false" [hidden]="bJoinedLobby===false"  class="red control-btn">
-        <a><i class="fa fa-2x fa-times"></i></a>
+        <a><i class="fa fa-lg fa-times"></i></a>
     </span>
 </div>

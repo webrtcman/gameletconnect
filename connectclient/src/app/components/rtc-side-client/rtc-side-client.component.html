@@ -1,8 +1,10 @@
 <div class="wrapper">
-    <div class="comm-container">
-
-    </div>
-    <app-rtc-controls></app-rtc-controls>
-    <app-rtc-overlay></app-rtc-overlay>
+    <ng-container *ngIf="bConnected && bLoggedIn">
+        <div class="comm-container">
+            <app-room-overview></app-room-overview>
+        </div>
+        <app-rtc-controls></app-rtc-controls>
+    </ng-container>
+    <app-rtc-overlay *ngIf="!bConnected"></app-rtc-overlay>
     <app-popup-manager></app-popup-manager>
 </div>

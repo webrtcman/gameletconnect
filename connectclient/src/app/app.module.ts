@@ -1,10 +1,10 @@
 import { MediasoupService } from './services/mediasoup.service';
-import { AppInterCompService } from './services/app-inter-comp.service';
-import { RtcInterCompService } from './services/rtc-inter-comp.service';
+import { InterCompService } from './services/inter-comp.service';
 import { WebsocketService } from './services/websocket.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
@@ -28,6 +28,13 @@ import { StarfieldBackgroundComponent } from './components/starfield-background/
 import { PopupManagerComponent } from './components/popup-manager/popup-manager.component';
 import { RoomOverviewComponent } from './components/room-overview/room-overview.component';
 import { RoomComponent } from './components/room/room.component';
+import { ScreenSharePickerComponent } from './components/screen-share-picker/screen-share-picker.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { UserAuthComponent } from './components/user-auth/user-auth.component';
+import { GeneralSettingsComponent } from './components/general-settings/general-settings.component';
+import { AppearanceSettingsComponent } from './components/appearance-settings/appearance-settings.component';
+import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
+import { ColorOrbBackgroundComponent } from './color-orb-background/color-orb-background.component';
 
 
 @NgModule({
@@ -50,15 +57,23 @@ import { RoomComponent } from './components/room/room.component';
     PopupManagerComponent,
     RoomOverviewComponent,
     RoomComponent,
+    ScreenSharePickerComponent,
+    SettingsComponent,
+    UserAuthComponent,
+    GeneralSettingsComponent,
+    AppearanceSettingsComponent,
+    EnumToArrayPipe,
+    ColorOrbBackgroundComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     AngularSplitModule,
-    FormsModule
+    FormsModule,
+    DragDropModule
   ],
-  providers: [WebsocketService, RtcInterCompService, AppInterCompService, MediasoupService],
+  providers: [WebsocketService, InterCompService, MediasoupService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

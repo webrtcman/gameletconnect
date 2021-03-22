@@ -1,22 +1,23 @@
 <h4>Room Name:</h4>
-<input type="text">
+<input [(ngModel)]="roomConfig.name" type="text" maxlength="16">
 <h4>Max Users:</h4>
-<input type="number">
+<input [(ngModel)]="roomConfig.maxUsers" type="number">
 <br>
 <h3>
     <label class="control-switch">
-        <input type="checkbox">
+        <input [(ngModel)]="roomConfig.bRoomPassword" type="checkbox">
         <span></span>
         <i></i>
     </label>
-    <span>&nbsp;&nbsp;Password</span>
-
+    <span>&nbsp;&nbsp;<small>Password</small></span>
 </h3>
-<h4>Password:</h4>
-<input type="text">
+<ng-container *ngIf="roomConfig.bRoomPassword">
+    <h4>Password:</h4>
+    <input [(ngModel)]="roomConfig.password" type="text">
+</ng-container>
 <br>
 <div class="flex-center full-width">
-<span (click)="onCreateClick()" class="green control-btn control-wide">
-    <a><i class="fas fa-lg fa-rocket"></i><p>&nbsp;Create</p></a>
-</span>
+    <span (click)="onCreateClick()" class="green control-btn control-wide">
+        <a><i class="fas fa-lg fa-rocket"></i><p>&nbsp;Create</p></a>
+    </span>
 </div>

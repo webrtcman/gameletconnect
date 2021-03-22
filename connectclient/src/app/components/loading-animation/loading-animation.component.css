@@ -14,16 +14,17 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: #38c1ff;
+    background: #d40101bc;
     animation: shrink-grow 5s linear infinite;
 }
 
 .loading-container .box .circle:nth-child(2) {
-    background: #ff3378;
+    background: #fa5400bc;
     animation-delay: -2.5s;
 }
 
 h2 {
+    color: #ffffffee;
     text-align: center;
 }
 

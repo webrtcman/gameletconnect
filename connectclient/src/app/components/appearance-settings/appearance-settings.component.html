@@ -1,0 +1,15 @@
+<h3>Background:</h3>
+<select (change)="onBackgroundSelect()" [(ngModel)]="selectedBackground" name="audioOutSelect">
+    <option *ngFor="let bg of backgrounds | keyvalue"  
+    [selected]="bg.value === selectedBackground"
+        value="{{bg.value}}">{{ bg.key }}</option>
+</select>
+
+<h3>
+    <label class="control-switch">
+        <input (change)="onAnimationSwitch()" [(ngModel)]="bAnimationsEnabled" type="checkbox">
+        <span></span>
+        <i></i>
+    </label>
+    <span>&nbsp;&nbsp;Animations</span>
+</h3>

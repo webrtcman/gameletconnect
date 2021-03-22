@@ -1,0 +1,17 @@
+<h4>Name:</h4>
+<input [(ngModel)]="username" type="text">
+<h4>Password:</h4>
+<input [(ngModel)]="password" type="password">
+<h3>
+    <label class="control-switch">
+        <input [(ngModel)]="bRemember" checked type="checkbox">
+        <span></span>
+        <i></i>
+    </label>
+    <span>&nbsp;&nbsp;<small>Remember me</small></span>
+</h3>
+<div class="flex-center full-width">
+    <span (click)="onLoginClick()" class="green control-btn control-wide">
+        <a><i class="fas fa-lg fa-key"></i><p>&nbsp;Login</p></a>
+    </span>
+</div>

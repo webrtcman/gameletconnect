@@ -44,7 +44,7 @@ function ellipticSlideOutAnimation(): AnimationReferenceMetadata {
             }),
             style({
                 offset: 1,
-                transform: 'translateX(1000px) rotateY(-30deg) scale(0)',
+                transform: 'translateX(1300px) rotateY(-30deg) scale(0)',
                 transformOrigin: '-100% 50%',
                 opacity: 0
             })
@@ -61,6 +61,14 @@ export function growShrink(): AnimationTriggerMetadata {
         transition(':enter',
             useAnimation(growAnimation())
         ),
+        transition(':leave', [
+            useAnimation(shrinkAnimation())
+        ]),
+    ]);
+}
+
+export function shrink(): AnimationTriggerMetadata {
+    return trigger('Shrink', [
         transition(':leave', [
             useAnimation(shrinkAnimation())
         ]),

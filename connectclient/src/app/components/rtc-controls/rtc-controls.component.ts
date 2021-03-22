@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { PopupTemplate } from './../../classes/enums';
+import { InterCompService } from '../../services/inter-comp.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { User } from 'src/app/classes/user';
 
 @Component({
@@ -6,7 +8,7 @@ import { User } from 'src/app/classes/user';
   templateUrl: './rtc-controls.component.html',
   styleUrls: ['./rtc-controls.component.css']
 })
-export class RtcControlsComponent implements OnInit {
+export class RtcControlsComponent implements OnInit, OnDestroy {
 
   public bLoading: boolean = true;
   public bMicroActive = false;
@@ -17,15 +19,19 @@ export class RtcControlsComponent implements OnInit {
   public bSettingsActive: boolean = false;
 
   public newRoomName: string = '';
-  public newUsername: string = '';
   public client: User;
-  constructor() { }
+
+  constructor(private interCompService: InterCompService) { }
 
   ngOnInit(): void {
-    this.client = new User()
+    this.client = this.interCompService.client;
   }
 
-  onSettingsClick(){}
+  ngOnDestroy(): void {
+
+  }
+
+  onSettingsClick(){ this.interCompService.requestPopup(PopupTemplate.settingsGeneral)}
   onJoinRoomClick(roomId: string){}
   onMicroClick(){}
   onVideoClick(){}

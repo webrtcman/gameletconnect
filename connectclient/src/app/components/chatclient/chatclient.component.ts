@@ -1,4 +1,4 @@
-import { RtcInterCompService } from './../../services/rtc-inter-comp.service';
+import { InterCompService } from '../../services/inter-comp.service';
 import { WebsocketService } from './../../services/websocket.service';
 import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { ChatMessage } from 'src/app/classes/chatmessage';
@@ -19,24 +19,24 @@ export class ChatclientComponent implements OnInit {
   constructor(
     private changeDetection: ChangeDetectorRef,
     private websocketService: WebsocketService,
-    private rtcInterCompService: RtcInterCompService
+    private interCompService: InterCompService
   ) 
   { 
   }
   
   ngOnInit(): void {
-    this.users = this.rtcInterCompService.usersInRoom;
-    this.chatHistoryRef = this.rtcInterCompService.chatHistory;
+    this.users = this.interCompService.usersInRoom;
+    
   }
 
   registerWebsocketEvents() {
     this.websocketService.on('lobby::chathistory', (event, data) => {
       this.chatHistoryRef = data;
-      this.changeDetection.markForCheck();
+      this.interCompService.requestChangeDetection();
     });
     this.websocketService.on('lobby::chatmessage', (event, data) => {
       this.chatHistoryRef.push(data);
-      this.changeDetection.markForCheck();
+      this.interCompService.requestChangeDetection();
     })
   }
 

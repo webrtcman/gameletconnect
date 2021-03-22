@@ -21,14 +21,19 @@ export class IpcReceiver {
         ipcMain.on('client::connected', (event) => {
             this.wsClient.getConnectionAlive();
         });
-        ipcMain.on('client::setname', (event, name) => {
-            this.wsClient.setClientName(name);
+        ipcMain.on('client::login', (event, data) => {
+            this.wsClient.login(data);
         });
+
+        ipcMain.on('client::getlobbies', (event) => {
+            this.wsClient.sendGetLobbies();
+        })
+
         ipcMain.on('client::joinlobby', (event, lobbyId) => {
             this.wsClient.joinLobby(lobbyId);
         });
-        ipcMain.on('client::createlobby', (event, lobbyName) => {
-            this.wsClient.createLobby(lobbyName);
+        ipcMain.on('client::createlobby', (event, config) => {
+            this.wsClient.createLobby(config);
         });
         ipcMain.on('client::getlobbyusers', (event) => {
             this.wsClient.sendGetLobbyUsers();

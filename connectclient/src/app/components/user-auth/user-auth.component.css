@@ -1,0 +1,9 @@
+.control-wide {
+    margin-top: 2vh;
+}
+
+h3 {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}

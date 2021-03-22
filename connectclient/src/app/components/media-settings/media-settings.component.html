@@ -11,9 +11,12 @@
             value="{{ device.deviceId }}">{{ device.label }}</option>
     </select>
     <div class="test-container">
-        <span (click)="onTestMicrophoneClick()" class="test-btn">
-            <a><i class="fa fa-lg fa-microphone"></i></a>
-            <small>Test</small>
+        <span [ngClass]="{'active': bAudioTest}" (click)="onTestMicrophoneClick()" class="control-btn orange">
+            <a>
+                <i class="fa fa fa-microphone"></i>
+                <br>
+                <small>Test</small>
+            </a>
         </span>
         <span #audiometer class="audiometer"></span>
     </div>
@@ -54,9 +57,12 @@
             value="{{ device.deviceId }}">{{ device.label }}</option>
     </select>
     <div class="test-container">
-        <span (click)="onTestVideoClick()" class="test-btn">
-            <a><i class="fa fa-lg fa-video"></i></a>
-            <small>Test</small>
+        <span [ngClass]="{'active': bVideoTest}" (click)="onTestVideoClick()" class="control-btn green">
+            <a>
+                <i class="fa fa fa-video"></i>
+                <br>
+                <small>Test</small>
+            </a>
         </span>
         <video [srcObject]="testVideoStream" autoplay></video>
     </div>

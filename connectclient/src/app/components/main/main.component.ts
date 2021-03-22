@@ -1,24 +1,46 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { InterCompService } from 'src/app/services/inter-comp.service';
+import { Background } from './../../classes/enums';
+import { Subscription } from 'rxjs';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { IOutputData, SplitComponent } from 'angular-split';
 
 
 
 @Component({
   selector: 'app-main',
-  changeDetection: ChangeDetectionStrategy.Default,
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.css']
 })
-export class MainComponent implements OnInit {
+export class MainComponent implements OnInit, OnDestroy {
+  public backgrounds = Background;
+  
   public bIntroDisplayed: boolean = false;
   public bActivateSidebar: boolean = false;
   public bShowSidebar: boolean = false;
 
+  public activeBackground: Background = Background.StarField;
+  backgroundChangeSubscription: Subscription;
+
   bShowIframeHider = false;
-  @ViewChild(SplitComponent) split: SplitComponent
-  constructor() { }
+  @ViewChild(SplitComponent) split: SplitComponent;
+
+  constructor(
+    private interCompService: InterCompService, 
+    private changeDetectorRef: ChangeDetectorRef) { 
+      if(localStorage.getItem('activeBackground'))
+        this.activeBackground = localStorage.getItem('activeBackground') as Background;
+    }
 
   ngOnInit(): void {
+    this.interCompService.onBackgroundChange()
+      .subscribe((background) => {
+        this.activeBackground = background;
+        this.changeDetectorRef.detectChanges();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.backgroundChangeSubscription.unsubscribe();
   }
 
   public onIntroCoveringScreen(): void {

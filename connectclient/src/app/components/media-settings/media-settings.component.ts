@@ -1,3 +1,4 @@
+import { InterCompService } from 'src/app/services/inter-comp.service';
 import { PopupWindowComponent } from './../popup-window/popup-window.component';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import webAudioPeakMeter from 'web-audio-peak-meter';
@@ -30,7 +31,10 @@ export class MediaSettingsComponent implements OnInit {
 
   @ViewChild('audiometer') audioMeter: ElementRef<HTMLDivElement>;
 
-  constructor( private changeDetection: ChangeDetectorRef) {
+  constructor(
+    private changeDetection: ChangeDetectorRef, 
+    private interCompService: InterCompService
+  ) {
     this.audioInDevices = [];
     this.audioOutDevices = [];
     this.videoDevices = [];
@@ -58,7 +62,7 @@ export class MediaSettingsComponent implements OnInit {
 
     this.setDefaultDevices();
     this.bLoaded = true;
-    this.changeDetection.detectChanges();
+    this.interCompService.onChangeDetectionRequest();
   }
 
   /**

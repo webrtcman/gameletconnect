@@ -55,7 +55,7 @@ export class RtcClientComponent implements OnInit {
 
   /**
    * Registers all events coming relayed by electron.
-   * Note the changeDetection.detectChanges call. If we don't do that,
+   * Note the changeDetection.detectChanges calls. If we don't do that,
    * UI won't update because of some weird behavior caused by angular-split
    */
   private registerElectronEvents(): void {
@@ -215,7 +215,7 @@ export class RtcClientComponent implements OnInit {
     }
     
     this.bShowPreConnectOverlay = false;
-    this.websocketService.setName(username);
+    this.websocketService.login(username,'derp');
     this.changeDetection.detectChanges();
   }
  
@@ -275,7 +275,7 @@ export class RtcClientComponent implements OnInit {
     if (this.newUsername === '')
       return;
     localStorage.setItem('username', this.newUsername);
-    this.websocketService.setName(this.newUsername);
+    this.websocketService.login(this.newUsername, 'derp');
     this.bShowNameInput = false;
     this.bShowPreConnectOverlay = false;
   }
@@ -303,8 +303,8 @@ export class RtcClientComponent implements OnInit {
   }
 
   public onCreateRoomClick(): void {
-    this.websocketService.createLobby(this.newRoomName);
-    this.roomCreation.showWindow(new Vector2(window.innerWidth / 2, window.innerHeight / 2));
+    // this.websocketService.createLobby(this.newRoomName);
+    this.roomCreation.showWindow();
   }
 
 

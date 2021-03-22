@@ -1,0 +1,35 @@
+<div class="full-width flex-start">
+    <span [ngClass]="{'active': activeTab === settingsTab.General}" (click)="onTabClick(settingsTab.General)" class="control-btn control-wide control-square blue">
+        <a>
+            <i class="fa fa-cog"></i>
+            <p>&nbsp;General</p>
+        </a>
+    </span>
+    <span [ngClass]="{'active': activeTab === settingsTab.Media}" (click)="onTabClick(settingsTab.Media)" class="control-btn control-wide control-square orange">
+        <a>
+            <i class="fa fa-microphone"></i>
+            <p>&nbsp;Media</p>
+        </a>
+    </span>
+    <span [ngClass]="{'active': activeTab === settingsTab.Appearance}" (click)="onTabClick(settingsTab.Appearance)" class="control-btn control-wide control-square green">
+        <a>
+            <i class="fas fa-palette"></i>
+            <p>&nbsp;Appearance</p>
+        </a>
+    </span>
+    <span [ngClass]="{'active': activeTab === settingsTab.About}" (click)="onTabClick(settingsTab.About)" class="control-btn control-wide control-square light-blue">
+        <a>
+            <i class="fa fa-question"></i>
+            <p>&nbsp;About</p>
+        </a>
+    </span>
+</div>
+<div [ngSwitch]="activeTab">
+    <app-general-settings *ngSwitchCase="settingsTab.General"></app-general-settings>
+    <app-media-settings *ngSwitchCase="settingsTab.Media"></app-media-settings>
+    <app-appearance-settings *ngSwitchCase="settingsTab.Appearance"></app-appearance-settings>
+    <div *ngSwitchCase="settingsTab.About">
+        <h3>Version: 0.3.2</h3>
+        <h4> Written by Johannes Franzen 2021</h4>
+    </div>
+</div>

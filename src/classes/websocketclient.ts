@@ -35,6 +35,15 @@ export class WebSocketClient {
             this.clientId = data.id;
             this.currWindow.webContents.send('server::register', data);
         });
+
+        this.ws.bind('server::loginsuccess', () => {
+            this.currWindow.webContents.send('server::loginsuccess');
+        });
+
+        this.ws.bind('server::loginfailure', () => {
+            this.currWindow.webContents.send('server::loginfailure');
+        });
+
         this.ws.bind('server::ping', () => {
             this.ws.emit('client::pong');
             this.resetConnectionTimeout();
@@ -138,12 +147,8 @@ export class WebSocketClient {
         this.currWindow.webContents.send('client::connected', this.bConnectionAlive );
     }
 
-    setClientName(name: string): void {
-        this.ws.emit('client::setname', { name });
-
-        //also get list if lobbies. 
-        //This whole process has to be changed when auth is implemented
-        this.sendGetLobbies();
+    login(data): void {
+        this.ws.emit('client::login', data);
     }
 
     sendGetLobbies(): void {
@@ -154,8 +159,8 @@ export class WebSocketClient {
         this.ws.emit('client::chatmessage', { message })
     }
 
-    createLobby(lobbyName: string): void {
-        this.ws.emit('client::createlobby', { lobbyName });
+    createLobby(data): void {
+        this.ws.emit('client::createlobby', data);
     }
 
     joinLobby(lobbyId: string) {
