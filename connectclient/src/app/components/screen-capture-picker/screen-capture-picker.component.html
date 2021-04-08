@@ -1,0 +1,39 @@
+<ng-container *ngIf="!bLoading">
+    <h3>
+        <label class="control-switch">
+            <input [checked]="bShareAudio" (change)="bShareAudio = !bShareAudio" type="checkbox">
+            <span></span>
+            <i></i>
+        </label>
+        <span>&nbsp;&nbsp;Share Computer Audio</span>
+    
+    </h3>
+
+    <h2>Screens:</h2>
+    <div class="source-container">
+        <div 
+        class="source" 
+        *ngFor="let source of screenSources"
+        (click)="onSourceClick(source.id)"
+        [attr.data-name]="source.name"
+        >
+            <img [src]="source.thumbnail.toDataURL()">
+        </div>
+    </div>
+    <h2>Windows:</h2>
+    <div class="source-container">
+        <ng-container *ngIf="!bShareAudio">
+            <div 
+            class="source" 
+            *ngFor="let source of windowSources"
+            (click)="onSourceClick(source.id)"
+            [attr.data-name]="source.name"
+            >
+                <img [src]="source.thumbnail.toDataURL()">
+            </div>
+        </ng-container>
+        <h4 *ngIf="bShareAudio">Sharing single windows is not possible while sharing computer audio.</h4>
+    </div>
+
+</ng-container>
+<app-loading-animation *ngIf="bLoading"></app-loading-animation>

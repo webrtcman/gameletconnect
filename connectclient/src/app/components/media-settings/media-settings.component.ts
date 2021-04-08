@@ -1,9 +1,13 @@
+import { MicrophoneSettings } from './../../classes/microphonesettings';
+import { Subscription } from 'rxjs';
+import { RtcSettingsService } from './../../services/rtc-settings.service';
 import { InterCompService } from 'src/app/services/inter-comp.service';
 import { PopupWindowComponent } from './../popup-window/popup-window.component';
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
 import webAudioPeakMeter from 'web-audio-peak-meter';
 import { fadeInOut } from 'src/app/animations/rtc_animations';
 import CONFIG from 'src/config/mediasoup.json';
+import { MediaType } from 'src/app/classes/enums';
 
 
 @Component({
@@ -12,7 +16,9 @@ import CONFIG from 'src/config/mediasoup.json';
   styleUrls: ['./media-settings.component.css'],
   animations: [fadeInOut()]
 })
-export class MediaSettingsComponent implements OnInit {
+export class MediaSettingsComponent implements OnInit, OnDestroy {
+
+  @ViewChild('audiometer') audioMeter: ElementRef<HTMLDivElement>;
 
   audioInDevices: MediaDeviceInfo[];
   audioOutDevices: MediaDeviceInfo[];
@@ -25,15 +31,19 @@ export class MediaSettingsComponent implements OnInit {
   selectedAudioInDeviceId: string;
   selectedAudioOutDeviceId: string;
 
+  micSettings: MicrophoneSettings;
+
   bLoaded: boolean = false;
   bAudioTest: boolean = false;
   bVideoTest: boolean = false;
 
-  @ViewChild('audiometer') audioMeter: ElementRef<HTMLDivElement>;
+  deviceChangeSubscription: Subscription;
+  audioSettingsChangeSubscription: Subscription;
 
   constructor(
     private changeDetection: ChangeDetectorRef, 
-    private interCompService: InterCompService
+    private interCompService: InterCompService,
+    private rtcSettingsService: RtcSettingsService
   ) {
     this.audioInDevices = [];
     this.audioOutDevices = [];
@@ -42,96 +52,74 @@ export class MediaSettingsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.loadMediaDevices();
+    this.registerSubscriptions();
+
+    if(this.rtcSettingsService.bDevicesLoaded)
+      this.getDeviceSettings();
   }
-  private async loadMediaDevices() {
-    const devices = await navigator.mediaDevices.enumerateDevices();
 
-    devices.forEach(device => {
-      if (device.kind === 'audioinput')
-        this.audioInDevices.push(device);
-      else if(device.kind === 'audiooutput')
-        this.audioOutDevices.push(device);
-      else if (device.kind === 'videoinput')
-        this.videoDevices.push(device);
+  ngOnDestroy(): void {
+    this.deviceChangeSubscription.unsubscribe();
+    this.audioSettingsChangeSubscription.unsubscribe();
+  }
+  
+  private registerSubscriptions(): void {
+    this.deviceChangeSubscription = this.rtcSettingsService
+      .onDeviceChange()
+      .subscribe(() => {
+        this.getDeviceSettings();
+      });
 
-    });
-    this.selectedAudioInDeviceId = this.audioInDevices[0]?.deviceId;
-    this.selectedAudioOutDeviceId = this.audioOutDevices[0]?.deviceId;
-    this.selectedVideoDeviceId = this.videoDevices[0]?.deviceId;
+    this.audioSettingsChangeSubscription = this.rtcSettingsService
+      .onAudioSettingsChange()
+      .subscribe(() => {
+        if(!this.bAudioTest)
+          return;
+        
+        //End current test and restart it with the new settings(no other way in chrome)
+        this.onTestMicrophoneClick();
+        this.onTestMicrophoneClick();
+      })
+  }
 
-    this.setDefaultDevices();
+  getDeviceSettings(): void {
+    this.micSettings = this.rtcSettingsService.microphoneSettings;
+    this.audioInDevices = this.rtcSettingsService.audioInDevices;
+    this.audioOutDevices = this.rtcSettingsService.audioOutDevices;
+    this.videoDevices = this.rtcSettingsService.videoDevices;
+    this.selectedAudioInDeviceId = this.rtcSettingsService.selectedAudioInDeviceId;
+    this.selectedAudioOutDeviceId = this.rtcSettingsService.selectedAudioOutDeviceId;
+    this.selectedVideoDeviceId = this.rtcSettingsService.selectedVideoDeviceId;
     this.bLoaded = true;
-    this.interCompService.onChangeDetectionRequest();
+    this.changeDetection.detectChanges();
   }
 
-  /**
-   * Sets the computer's default mic and camera as communication devices for RTC
-   * if user didn't select a device yet or the selected device isn't available anymore.
-   */
-  private setDefaultDevices(): void {
-
-    if (this.getDevicesSetAndConnected())
-      return;
-
-    this.selectedAudioInDeviceId = this.audioInDevices[0]?.deviceId;
-    if (!this.selectedAudioInDeviceId)
-      //TODO: Show Message that no audio in device is available
-      return;
-
-    localStorage.setItem('audioInDevice', this.selectedAudioInDeviceId);
-
-    this.selectedAudioOutDeviceId = this.audioOutDevices[0]?.deviceId;
-    if (!this.selectedAudioOutDeviceId)
-      //TODO: Show Message that no audio out device is available
-      return;
-
-    localStorage.setItem('audioOutDevice', this.selectedAudioOutDeviceId);
-
-    this.selectedVideoDeviceId = this.videoDevices[0]?.deviceId;
-    if (!this.selectedVideoDeviceId)
-      //TODO: Show Message that no video device is available
-      return;
-
-    localStorage.setItem('videoDevice', this.selectedVideoDeviceId);
-
-  }
-
-  /**
-   * Checks if video & audio devices are set and connected to the computer.
-   * @returns true if both audio & video devices are set & connected, false if not 
-   */
-  private getDevicesSetAndConnected(): boolean {
-    const audioInDeviceId: string = localStorage.getItem('audioInDevice');
-    const audioOutDeviceId: string = localStorage.getItem('audioOutDevice');
-    const videoDeviceId: string = localStorage.getItem('videoDevice');
-
-    if (!audioInDeviceId || !audioOutDeviceId || !videoDeviceId)
-      return false;
-
-    const audioInDeviceExists = this.audioInDevices.find(device => device.deviceId === audioInDeviceId);
-    const audioOutDeviceExists = this.audioInDevices.find(device => device.deviceId === audioOutDeviceId);
-    const videoDeviceExists = this.videoDevices.find(device => device.deviceId === videoDeviceId);
-
-    if (!audioInDeviceExists || !audioOutDeviceExists || !videoDeviceExists)
-      return false;
-
-    return true;
-  }
-
-  public onVideoSelect() {
+  public onVideoSelect(): void {
+    this.rtcSettingsService.selectedVideoDeviceId = this.selectedVideoDeviceId;
     localStorage.setItem('videoDevice', this.selectedVideoDeviceId);
   }
 
-  public onAudioInSelect() {
+  public onAudioInSelect(): void {
+    this.rtcSettingsService.selectedAudioInDeviceId = this.selectedAudioInDeviceId;
+    this.rtcSettingsService.announceDeviceChange(MediaType.audio);
     localStorage.setItem('audioInDevice', this.selectedAudioInDeviceId);
   }
 
-  public onAudioOutSelect() {
+  public onAudioOutSelect(): void {
+    this.rtcSettingsService.selectedAudioOutDeviceId = this.selectedAudioOutDeviceId;
     localStorage.setItem('audioOutDevice', this.selectedAudioOutDeviceId);
   }
 
-  onTestMicrophoneClick() {
+  public onMicSettingChange(): void {
+    console.log(this.micSettings);
+    this.rtcSettingsService.announceAudioSettingsChange();
+  }
+
+  public onMicSensitivityChange(): void {
+    this.rtcSettingsService.onMicSensitivityChange()
+  }
+
+  public onTestMicrophoneClick(): void {
     this.bAudioTest = !this.bAudioTest;
 
     if(this.bAudioTest)
@@ -140,7 +128,7 @@ export class MediaSettingsComponent implements OnInit {
       this.stopAudioInTest();
   }
 
-  onTestVideoClick(){
+  public onTestVideoClick(): void {
     this.bVideoTest = !this.bVideoTest;
 
     if(this.bVideoTest)
@@ -153,9 +141,12 @@ export class MediaSettingsComponent implements OnInit {
   async startMicrophoneTest(): Promise<void> {
     const mediaConstraints = {
       audio: {
-        deviceId: localStorage.getItem('audioInDevice')
+        deviceId: localStorage.getItem('audioInDevice'),
+        noiseSuppression: this.micSettings.bNoiseSuppression,
+        echoCancellation: this.micSettings.bEchoCancellation
       },
-      video: false
+      video: false,
+      
     }
     this.testAudioStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     this.changeDetection.detectChanges();
@@ -163,7 +154,7 @@ export class MediaSettingsComponent implements OnInit {
     this.initAudioMeter();
   }
   
-  async startVideoTest() {
+  async startVideoTest(): Promise<void> {
     const mediaConstraints = {
       audio: false,
       video: CONFIG.video.preview.resolution,
@@ -172,26 +163,26 @@ export class MediaSettingsComponent implements OnInit {
     try {
       this.testVideoStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     } catch(error){
-
+      this.rtcSettingsService.showCameraAccessError();
     }
     this.changeDetection.detectChanges();
   }
 
-  stopAudioInTest() {
+  stopAudioInTest(): void {
     this.testAudioStream.getTracks().forEach(track => {
       track.stop();
     });
     this.audioMeter.nativeElement.innerHTML = '';
   }
 
-  stopVideoTest() {
+  stopVideoTest(): void {
     this.testVideoStream.getTracks().forEach(track => {
       track.stop();
     });
     this.changeDetection.detectChanges();
   }
 
-  initAudioMeter() {
+  initAudioMeter(): void {
     const meterElement = this.audioMeter.nativeElement;
     const audioCtx = new window.AudioContext();
     const sourceNode = audioCtx.createMediaStreamSource(this.testAudioStream);

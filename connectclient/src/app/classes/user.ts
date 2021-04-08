@@ -6,4 +6,8 @@ export class User {
     bRoomSoundActive: boolean;
     bCamActive: boolean;
     bScreenSharing: boolean;
+
+    camStream: MediaStream;
+    screenStream: MediaStream;
+    audioStream: MediaStream;
 }

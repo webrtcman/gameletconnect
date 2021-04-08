@@ -1,12 +1,16 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { ScreenCaptureService } from './screen-capture.service';
+import { RtcSettingsService } from './rtc-settings.service';
+import { StreamData } from './../classes/streamdata';
+import { Injectable } from '@angular/core';
 import { WebsocketService } from './websocket.service';
 import * as mediasoupClient from 'mediasoup-client';
 import { MediaKind, RtpCapabilities, RtpParameters } from 'mediasoup-client/lib/types';
-import { Transport, DtlsParameters } from 'mediasoup-client/lib/types';
+import { Transport } from 'mediasoup-client/lib/types';
 import { Consumer, Producer, Device } from 'mediasoup-client/lib/types';
-import { config, Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import CONFIG from 'src/config/mediasoup.json';
 import { MediaType } from 'src/app/classes/enums';
+
 
 
 @Injectable({
@@ -26,21 +30,36 @@ export class MediasoupService {
 
   existingProducers: Map<MediaType, string>
 
-  videoStreams: { sourceId: string, consumerId: string, stream: MediaStream }[];
-  audioStreams: { sourceId: string, consumerId: string, stream: MediaStream }[];
+  private consumerAddedSubject: Subject<StreamData>;
+  private consumerRemovedSubject: Subject<StreamData>;
 
-  private consumersChangedSource: Subject<void>;
-  public consumersChanged: Observable<void>;
+  deviceChangeSubscription: Subscription;
+  audioSettingsChangeSubscription: Subscription;
 
-  constructor(private websocketService: WebsocketService) {
+  constructor(
+    private websocketService: WebsocketService, 
+    private rtcSettingsService: RtcSettingsService,
+    private screenCaptureService: ScreenCaptureService
+  ){
     this.producers = new Map<string, Producer>();
     this.consumers = new Map<string, Consumer>();
+
     this.existingProducers = new Map<MediaType, string>();
-    this.consumersChangedSource = new Subject<void>();
-    this.consumersChanged = this.consumersChangedSource.asObservable();
-    this.videoStreams = [];
-    this.audioStreams = [];
+    this.consumerAddedSubject = new Subject<StreamData>();
+    this.consumerRemovedSubject = new Subject<StreamData>();
+
+    // this.videoStreams = [];
+    // this.audioStreams = [];
+    this.registerRtcSettingsSubscriptions();
     this.registerElectronEvents();
+  }
+
+  private registerRtcSettingsSubscriptions() {
+    this.audioSettingsChangeSubscription = this.rtcSettingsService
+      .onAudioSettingsChange()
+      .subscribe(() => this.restartProducer(MediaType.audio));
+    
+    
   }
 
   private registerElectronEvents() {
@@ -63,24 +82,31 @@ export class MediasoupService {
       console.log('received producers', data);
       if (data.producers)
         for (const producer of data.producers) {
+          console.log('starting consumation')
           await this.consume(producer.producerId, producer.sourceId);
         }
-        console.log(this.audioStreams);
-      this.consumersChangedSource.next();
+  
     });
 
     this.websocketService.on('lobby_rtc::newproducer', async (event, data) => {
       const producer = data;
       console.log('starting consumation')
       await this.consume(producer.producerId, producer.sourceId);
-      console.log(this.audioStreams);
-      this.consumersChangedSource.next();
-
+    
     });
 
     this.websocketService.on('lobby_rtc::consumerclosed', (event, data) => {
       this.removeConsumer(data.consumerId);
+      
     });
+  }
+
+  /**
+   * Returns an observable that pushes a streamdata object
+   * when a new consumer is created
+   */
+  public onConsumerAdded(): Observable<StreamData> {
+    return this.consumerAddedSubject.asObservable();
   }
 
   /**
@@ -95,17 +121,18 @@ export class MediasoupService {
   /**
    * Disconnect from RTC
    */
-  stopRtc(): void {
-    if(this.consumerTransport)
+  public stopRtc(): void {
+    if (this.consumerTransport)
       this.consumerTransport.close();
-    if(this.producerTransport)
+    if (this.producerTransport)
       this.producerTransport.close();
 
+    this.rtcSettingsService.stopSpeechDetection();
     this.producers = new Map<string, Producer>();
     this.consumers = new Map<string, Consumer>();
     this.existingProducers = new Map<MediaType, string>();
-    this.videoStreams = [];
-    this.audioStreams = [];
+    // this.videoStreams = [];
+    // this.audioStreams = [];
   }
 
   /**
@@ -120,31 +147,24 @@ export class MediasoupService {
       alert('Your Device is not supported. You cannot participate in Video or Audio communication.');
       return;
     }
-    
+
     await this.device.load({
       routerRtpCapabilities
     });
   }
-  
+
   public getDeviceRtpCapabilities(): RtpCapabilities | void {
     if (this.device)
-    return this.device.rtpCapabilities;
+      return this.device.rtpCapabilities;
   }
-  
-  public getVideoStreams(): { sourceId: string, consumerId: string, stream: MediaStream }[] {
-    return this.videoStreams;
-  }
-  
-  public getAudioStreams(): { sourceId: string, consumerId: string, stream: MediaStream }[] {
-    return this.audioStreams;
-  }
-  
-//#region Transport functionality
+
+  //#region Transport functionality
 
   private async createRtcTransports(): Promise<void> {
     await this.loadDevice(this.routerRtpCapabilities);
     this.websocketService.createTransports();
   }
+
   /**
    * Inits either the producer ('Send') Transport or the consumer ('Recv') Transport
    * @param device 
@@ -164,10 +184,11 @@ export class MediasoupService {
     this.registerConsumerTransportEvents();
     this.websocketService.requestProducers();
   }
+
   /**
    * Registers 'connect', 'produce' & 'connectionstatechange' event handlers for the producer transport
    */
-  async registerProducerTransportEvents() {
+  private async registerProducerTransportEvents() {
     this.producerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
       console.log("connecting prod transport");
       this.websocketService.once('lobby_rtc::producerTransportConnected', (event) => {
@@ -194,13 +215,10 @@ export class MediasoupService {
       switch (state) {
         case 'connecting':
           break;
-
         case 'connected':
           break;
-
         case 'failed':
           break;
-
         default:
           break;
       }
@@ -210,7 +228,7 @@ export class MediasoupService {
   /**
    * Registers 'connect' & 'connectionstatechange' event handlers for the consumer transport
    */
-  async registerConsumerTransportEvents() {
+  private async registerConsumerTransportEvents() {
     this.consumerTransport.on('connect', async ({ dtlsParameters }, callback, errback) => {
       this.websocketService.connectTransport(dtlsParameters, false);
       this.websocketService.on('lobby_rtc::consumerTransportConnected', (event) => {
@@ -218,46 +236,25 @@ export class MediasoupService {
 
       });
     })
-
+    //Unused for now
     this.consumerTransport.on('connectionstatechange', async (state) => {
       switch (state) {
         case 'connecting':
           break;
-
         case 'connected':
           break;
-
         case 'failed':
-          //this.consumerTransport.close();
           break;
-
         default:
           break;
       }
     });
 
   }
-//#endregion
-//#region Producer functionality
+  //#endregion
+  //#region Producer functionality
 
-  produce(type: MediaType, deviceId: string = null) {
-    console.log('in produce');
-    switch (type) {
-      case MediaType.audio:
-        this.produceAudio(deviceId);
-        break;
-      case MediaType.video:
-        this.produceVideo(deviceId);
-        break;
-      case MediaType.screen:
-        this.produceScreenCapture();
-        break;
-      default:
-        return;
-    }
-  }
-
-  async produceVideo(deviceId: string) {
+  public async produceVideo() {
     console.log('in produce video');
     if (!this.device.canProduce('video')) {
       console.error('cannot produce video');
@@ -268,15 +265,21 @@ export class MediasoupService {
       return;
 
     }
-
     const mediaConstraints = {
       audio: false,
       video: CONFIG.video.resolution,
-      deviceId: deviceId
+      deviceId: this.rtcSettingsService.selectedVideoDeviceId
     }
-    const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-    const track = stream.getVideoTracks()[0];
 
+    let stream;
+    let track;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+      track = stream.getVideoTracks()[0];
+    }catch(error){
+      this.rtcSettingsService.showCameraAccessError();
+      return;
+    }
     const params = {
       track,
       encodings: CONFIG.video.params.encodings,
@@ -292,91 +295,145 @@ export class MediasoupService {
 
   }
 
-  async produceAudio(deviceId: string) {
-    if (this.existingProducers.has(MediaType.audio))
+  public async produceAudio() {
+    if (this.existingProducers.has(MediaType.audio)){
+      console.log('audio prod exists')
       return;
+    }
 
+    const micSettings = this.rtcSettingsService.microphoneSettings;
     const mediaConstraints = {
       audio: {
-        deviceId: deviceId
+        deviceId: this.rtcSettingsService.selectedAudioInDeviceId,
+        noiseSuppression: micSettings.bNoiseSuppression,
+        echoCancellation: micSettings.bEchoCancellation
       },
       video: false
     }
 
     const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     const track = stream.getAudioTracks()[0];
-
-    const params = {
-      track
-    }
+    const params = { track };
 
     const producer = await this.producerTransport.produce(params);
 
     this.producers.set(producer.id, producer);
     this.existingProducers.set(MediaType.audio, producer.id);
+
+    this.rtcSettingsService.startSpeechDetection(
+      () => this.resumeProducer(MediaType.audio),
+      () => this.pauseProducer(MediaType.audio)
+    );
   }
 
-  async produceScreenCapture() {
+  public async produceScreenCapture() {
     if (!this.device.canProduce('video')) {
       console.error('cannot produce video');
       return;
     }
-    // @ts-ignore For some reason ts doesn't know this function exists lol
-    const stream = await navigator.mediaDevices.getDisplayMedia({video: true}) as MediaStream; //added for intellisense
+    if(this.existingProducers.has(MediaType.screen))
+      return this.restartProducer(MediaType.screen);
+
+
+    const {stream, bAudio } = await this.screenCaptureService.startCapture();
     const track = stream.getVideoTracks()[0];
+  
+    const screenParams = { track };
 
-    const params = {
-      track
+    const screenProducer = await this.producerTransport.produce(screenParams);
+
+    this.producers.set(screenProducer.id, screenProducer);
+    this.existingProducers.set(MediaType.screen, screenProducer.id);
+
+    if(!bAudio)
+      return;
+
+    const audio = stream.getAudioTracks()[0];
+    const audioParams = {
+      track: audio
     }
+    const screenAudioProducer = await this.producerTransport.produce(audioParams);
 
-    const producer = await this.producerTransport.produce(params);
+    this.producers.set(screenAudioProducer.id, screenAudioProducer);
+    this.existingProducers.set(MediaType.screenAudio, screenAudioProducer.id);
 
-    this.producers.set(producer.id, producer);
-    this.existingProducers.set(MediaType.screen, producer.id);
   }
 
-  closeProducer(type: MediaType) {
-    if (!this.existingProducers.has(type)) {
-      console.log(`No producer of type ${type} exists.`);
-      return;
-    }
+  public closeProducer(type: MediaType) {
+    if (!this.existingProducers.has(type)) 
+      return console.log(`No producer of type ${type} exists.`);
+      
     let producerId = this.existingProducers.get(type);
+
+    if(!this.producers.has(producerId))
+      return;
+
+    if(type === MediaType.audio)
+      this.rtcSettingsService.stopSpeechDetection();
 
     this.websocketService.closeProducer(producerId);
     this.producers.get(producerId).close();
     this.producers.delete(producerId);
+    this.existingProducers.delete(type);
   }
 
-  pauseProducer(type) {
+  public pauseProducer(type: MediaType) {
     if (!this.existingProducers.has(type)) {
-      console.log('there is no producer for this type ' + type)
+      console.log('there is no producer for this type ' + type);
       return
     }
-    let producer_id = this.existingProducers.get(type)
+    let producer_id = this.existingProducers.get(type);
     this.producers.get(producer_id).pause();
   }
-
-  resumeProducer(type) {
+  
+  public resumeProducer(type) {
     if (!this.existingProducers.has(type)) {
       console.log('there is no producer for this type ' + type)
       return;
     }
     let producerId = this.existingProducers.get(type);
-    this.producers.get(producerId).resume();
+    let producer = this.producers.get(producerId);
+    if(producer.paused)
+      producer.resume();
   }
-//#endregion
-//#region Consumer functionality
-  async consume(producerId: string, sourceId: string) {
-    const { consumer, stream, kind} = await this.getConsumeStream(producerId);
-    const streamData = { sourceId, stream, consumerId: consumer.id };
-    if (kind == 'video') 
-    this.videoStreams.push(streamData);
-    
-    else if (kind == 'audio'){
-      console.log('audio');
-      console.log(streamData)
-      this.audioStreams.push(streamData);
+
+  public async restartProducer(type: MediaType) {
+    if(!this.existingProducers.has(type))
+      return;
+    console.log('restarting producer');
+    this.closeProducer(type);
+    console.log('closed old producer');
+    await setTimeout(()=>{},100);
+    switch(type){
+      case MediaType.audio:
+        this.produceAudio();
+        break;
+      case MediaType.video:
+        this.produceVideo();
+        break;
+      case MediaType.screen: 
+        //intended fallthrough
+      case MediaType.screenAudio:
+        this.produceScreenCapture();
+        break;
+      default:
+        console.error('unkown media type: ', type);
     }
+
+  }
+
+  //#endregion
+  //#region Consumer functionality
+
+  private async consume(producerId: string, sourceId: string) {
+    const { consumer, stream, kind } = await this.getConsumeStream(producerId);
+    const streamData = new StreamData(sourceId, consumer.id, stream);
+
+    if (kind === 'video')
+      streamData.streamType = MediaType.video;
+
+    else if (kind === 'audio')
+      streamData.streamType = MediaType.audio;
 
     consumer.on('trackended', () => {
       this.removeConsumer(consumer.id);
@@ -384,42 +441,36 @@ export class MediasoupService {
     consumer.on('transportclose', () => {
       this.removeConsumer(consumer.id);
     });
+
+    this.consumerAddedSubject.next(streamData);
   }
 
-  getConsumeStream(producerId: string): Promise<{ consumer: Consumer, stream: MediaStream, kind: MediaKind}> {
+  private getConsumeStream(producerId: string): Promise<{ consumer: Consumer, stream: MediaStream, kind: MediaKind }> {
     return new Promise((resolve, reject) => {
 
       this.websocketService.consume(producerId, this.device.rtpCapabilities);
 
       this.websocketService.once('lobby_rtc::consumationParams', async (event, data) => {
-        try{
+        try {
+          console.log("consumation params received")
           data.params.codecOptions = {};
           const consumer = await this.consumerTransport.consume(data.params);
           const stream = new MediaStream();
           stream.addTrack(consumer.track);
           resolve({ consumer, stream, kind: data.params.kind });
-        } 
-        catch(error){
+        }
+        catch (error) {
           reject(error);
         }
-
       });
     })
   }
 
   removeConsumer(consumerId: string) {
-    if(!this.consumers.has(consumerId))
+    if (!this.consumers.has(consumerId))
       return;
 
     this.consumers.delete(consumerId);
-
-    let stream = this.videoStreams.find(stream => stream.consumerId === consumerId);
-    if (stream) {
-      this.videoStreams.splice(this.videoStreams.indexOf(stream), 1);
-      return;
-    }
-    stream = this.audioStreams.find(stream => stream.consumerId === consumerId);
-    this.audioStreams.splice(this.videoStreams.indexOf(stream), 1);
   }
-//#endregion
+  //#endregion
 }

@@ -18,25 +18,36 @@ export class UserAuthComponent implements OnInit {
   constructor(private websocketService: WebsocketService, private interCompService: InterCompService) { }
 
   ngOnInit(): void {
-    this.registerWebsocketAuthEvents();
+
   }
 
   private registerWebsocketAuthEvents(): void {
-    this.websocketService.on('server::loginsuccess', ()=> {
-      this.websocketService.getLobbies();
-    });
-    this.websocketService.on('server::loginfailure', ()=> {
-      //TODO: implement this case lol
-    });
+    this.websocketService.on('server::loginsuccess', ()=> this.onLoginSuccess());
+    this.websocketService.on('server::loginfailure', ()=> this.onLoginFailure());
   }
 
-  onLoginClick(): void {
-    
+  onLoginClick(): void {  
+    this.registerWebsocketAuthEvents();
     this.websocketService.login(this.username, this.password);
-    //TODO wait for response  before hiding & saving when real auth is implemented
+  }
+
+  onLoginSuccess(): void {
+
     localStorage.setItem('username', this.username);
+    // TODO: Well, dont do that, lol. maybe use node-keytar? https://github.com/atom/node-keytar
+    localStorage.setItem('password', this.password);
+
+    this.username = '';
+    this.password = '';
+
     this.interCompService.announceAuthentication();
+    this.websocketService.getLobbies();
     this.windowRef.hideWindow();
+  }
+
+  onLoginFailure(): void {
+    this.password = '';
+    //TODO: Msg
   }
 
 }

@@ -4,11 +4,13 @@
     <select (change)="onAudioOutSelect()" [(ngModel)]="selectedAudioOutDeviceId" name="audioOutSelect">
         <option *ngFor="let device of audioOutDevices" [selected]="device.deviceId === selectedAudioOutDeviceId"
             value="{{ device.deviceId }}">{{ device.label }}</option>
+            <option *ngIf="audioOutDevices.length == 0" disabled selected>No device found</option>
     </select>
     <h3>Microphone:</h3>
     <select (change)="onAudioInSelect()" [(ngModel)]="selectedAudioInDeviceId" name="audioInSelect">
         <option *ngFor="let device of audioInDevices" [selected]="device.deviceId === selectedAudioInDeviceId"
             value="{{ device.deviceId }}">{{ device.label }}</option>
+            <option *ngIf="audioInDevices.length == 0" disabled selected>No device found</option>
     </select>
     <div class="test-container">
         <span [ngClass]="{'active': bAudioTest}" (click)="onTestMicrophoneClick()" class="control-btn orange">
@@ -21,26 +23,32 @@
         <span #audiometer class="audiometer"></span>
     </div>
     <h3>
+        Microphone Sensitivity:
+    </h3>
+    <input type="range" min="-100" max="0" (change)="onMicSensitivityChange()" [(ngModel)]="micSettings.customSensitivity">
+    <span>{{ micSettings.customSensitivity }}db</span>
+    <h3>
         <label class="control-switch">
-            <input type="checkbox">
+            <input [checked]="micSettings.bNoiseSuppression"
+            (change)="micSettings.bNoiseSuppression = !micSettings.bNoiseSuppression;onMicSettingChange()"
+            type="checkbox"
+            >
             <span></span>
             <i></i>
         </label>
         <span>&nbsp;&nbsp;Background Noise Suppression</span>
-
     </h3>
 
     <h3>
         <label class="control-switch">
-            <input type="checkbox">
+            <input [checked]="micSettings.bEchoCancellation" (change)="micSettings.bEchoCancellation = !micSettings.bEchoCancellation; onMicSettingChange()" type="checkbox">
             <span></span>
             <i></i>
         </label>
         <span>&nbsp;&nbsp;Echo Cancellation</span>
-
     </h3>
-
-    <h3>
+    <!--Push to talk-->
+    <!-- <h3>
         <label class="control-switch">
             <input type="checkbox">
             <span></span>
@@ -48,13 +56,15 @@
         </label>
         <span>&nbsp;&nbsp;Push-to-talk</span>
 
-    </h3>
+    </h3> -->
+
     <br><br>
     <h2>Video</h2>
     <h3>Camera:</h3>
     <select (change)="onVideoSelect()" [(ngModel)]="selectedVideoDeviceId" name="videoSelect">
         <option *ngFor="let device of videoDevices" [selected]="device.deviceId === selectedVideoDeviceId"
             value="{{ device.deviceId }}">{{ device.label }}</option>
+        <option *ngIf="videoDevices.length == 0" disabled selected>No device found</option>
     </select>
     <div class="test-container">
         <span [ngClass]="{'active': bVideoTest}" (click)="onTestVideoClick()" class="control-btn green">
@@ -76,4 +86,4 @@
 
     </h3>
 </div>
-<app-loading-animation *ngIf="!bLoaded"></app-loading-animation>
+<app-loading-animation [loadingMessage]="'Collecting Device Data...'" *ngIf="!bLoaded"></app-loading-animation>

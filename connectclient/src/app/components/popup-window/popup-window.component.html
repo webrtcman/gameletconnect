@@ -4,9 +4,12 @@
 cdkDrag 
 cdkDragBoundary=".side-container"
 >
-    <div class="window-titlebar" [ngClass]="{'title-danger': windowType === windowTypes.danger, 
-                        'title-warning': windowType === windowTypes.warning, 
-                        'title-info': windowType === windowTypes.info}">
+    <div class="window-titlebar" 
+    cdkDragHandle
+    [ngClass]="{'title-danger': windowType === windowTypes.danger, 
+                'title-warning': windowType === windowTypes.warning, 
+                'title-info': windowType === windowTypes.info}"
+    >
         <div (click)="hideWindow()" class="control-btn red control-small window-close-btn">
             <a><i class="fa fa-times"></i></a>
         </div>

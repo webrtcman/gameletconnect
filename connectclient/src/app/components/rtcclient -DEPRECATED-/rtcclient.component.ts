@@ -1,8 +1,8 @@
-import { PopupWindowComponent } from './../popup-window/popup-window.component';
-import { MediasoupService } from './../../services/mediasoup.service';
-import { ChatMessage } from './../../classes/chatmessage';
-import { User } from './../../classes/user';
-import { Room } from './../../classes/room';
+import { PopupWindowComponent } from '../popup-window/popup-window.component';
+import { MediasoupService } from '../../services/mediasoup.service';
+import { ChatMessage } from '../../classes/chatmessage';
+import { User } from '../../classes/user';
+import { Room } from '../../classes/room';
 import { WebsocketService } from '../../services/websocket.service';
 import { Component, OnInit, ElementRef, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { ellipticSlide, growShrink } from 'src/app/animations/rtc_animations';
