@@ -5,13 +5,14 @@ const path = require('path');
         height: 900,
         resizable: true,
         fullscreenable: true,
-        //frame: false,
-        //transparent: true,
+        show: false,
         backgroundColor: '#ffffff',
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            webSecurity: false,
+            // webSecurity: false,
             //devTools: false
         }
+        //frame: false,
+        //transparent: true,
 }

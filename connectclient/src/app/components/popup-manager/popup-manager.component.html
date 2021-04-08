@@ -2,6 +2,10 @@
     <app-user-auth [windowRef]="userAuth"></app-user-auth>
 </app-popup>
 
+<app-popup #chat [windowType]="'info'" (onClose)="onChatClose()" [title]="'Room Chat'">
+    <app-chatclient></app-chatclient>
+</app-popup>
+
 <app-popup #roomCreator [windowType]="'info'" [title]="'Room Creation'">
     <app-room-creator [windowRef]="roomCreator"></app-room-creator>
 </app-popup>
@@ -10,16 +14,16 @@
     <app-settings [activeTab]="activeSettingsTab"></app-settings>
 </app-popup>
 
-<app-popup #screenShare [windowType]="'info'" [title]="'Screen Share'">
-    <app-screen-share-picker [windowRef]="screenShare"></app-screen-share-picker>
+<app-popup #screenCapture [windowType]="'info'" [title]="'Screen Share'">
+    <app-screen-capture-picker [windowRef]="screenCapture"></app-screen-capture-picker>
 </app-popup>
 
 <app-popup #custom [windowType]="customConfig?.windowType" [title]="customConfig?.customTitle">
-    <p [innerHTML]="customConfig?.customMessage"></p>
+    <p class="custom-msg" [innerHTML]="customConfig?.customMessage"></p>
     <div *ngIf="customConfig?.bCustomBtn" class="flex-center full-width">
         <span (click)="closeCustomPopup()" class="green control-btn control-wide">
             <a>
-                <p class="custom-msg">{{ customConfig.customBtnText }}</p>
+                <p class="custom-msg">{{ customConfig?.customBtnText }}</p>
             </a>
         </span>
     </div>

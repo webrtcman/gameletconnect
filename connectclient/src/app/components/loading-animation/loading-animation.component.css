@@ -2,6 +2,7 @@
 .loading-container .box {
     margin: auto;
     position: relative;
+    overflow: hidden;
     width: 300px;
     height: 300px;
     animation: rotation 10s linear infinite;

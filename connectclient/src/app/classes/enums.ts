@@ -1,7 +1,9 @@
 export enum MediaType {
   audio = 'audio',
   video = 'video',
-  screen = 'screen'
+  screen = 'screen',
+  screenAudio = 'screenAudio',
+  audioOut = 'audioOut'
 }
 
 export enum SettingsTab {
@@ -18,8 +20,8 @@ export enum WindowType {
 }
 
 export enum LobbyType {
-  Base = 0,
-  Room = 1
+  Base = 'Base',
+  Room = 'Room'
 }
 
 export enum Background {
@@ -28,11 +30,20 @@ export enum Background {
   Simple = 'Simple'
 }
 
+export enum Buttons {
+  Microphone = 0,
+  Camera = 1,
+  ScreenCapture = 2,
+  Chat = 3,
+  LeaveRoom = 4
+}
+
 export enum PopupTemplate {
   userAuth = 0,
-  roomCreation = 1,
-  screenSharePicker = 2,
-  settingsGeneral = 3,
-  settingsMedia = 4,
-  settingsAppearance = 5
+  chat = 1,
+  roomCreation = 2,
+  screenCapturePicker = 3,
+  settingsGeneral = 4,
+  settingsMedia = 5,
+  settingsAppearance = 6
 }

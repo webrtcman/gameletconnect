@@ -1,3 +1,4 @@
+import { LobbyType } from 'src/app/classes/enums';
 import { WebsocketService } from './../../services/websocket.service';
 import { InterCompService } from 'src/app/services/inter-comp.service';
 import { Component, Input, OnInit } from '@angular/core';
@@ -14,7 +15,10 @@ export class RoomCreatorComponent implements OnInit {
   @Input('windowRef') windowRef: PopupWindowComponent;
   roomConfig: RoomConfig;
 
-  constructor(private websocketService: WebsocketService, private interCompService: InterCompService) {
+  constructor(
+    private websocketService: WebsocketService, 
+    private interCompService: InterCompService
+  ) {
   }
   
   ngOnInit(): void {
@@ -33,5 +37,6 @@ export class RoomCreatorComponent implements OnInit {
       
     this.windowRef.hideWindow();
     this.websocketService.createLobby(this.roomConfig);
+    this.interCompService.announceLobbyChange(LobbyType.Room);
   }
 }

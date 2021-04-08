@@ -26,7 +26,11 @@ export class WebSocketClient {
     registerEvents(): void {
 
         this.ws.bind('error', (err) => {
+            console.log('caught error:')
             console.log(err);
+            if(err.message == 'Opening handshake has timed out' || err.code == 'ECONNREFUSED')
+                this.currWindow.webContents.send('server::unreachable');
+
         })
         //#region server events (events with, connection logic, multiple lobbies or lobby switching involved)
         this.ws.bind('server::register', (data) => {
@@ -71,8 +75,11 @@ export class WebSocketClient {
         })
         //#endregion
         //#region lobby specific events
-        this.ws.bind('lobby::joinsuccess', (data)=> {
-            this.currWindow.webContents.send('lobby::joinsuccess', data);
+        this.ws.bind('lobby::joinsuccess', ()=> {
+            this.currWindow.webContents.send('lobby::joinsuccess');
+        });
+        this.ws.bind('lobby::leavesuccess', ()=> {
+            this.currWindow.webContents.send('lobby::leavesuccess');
         });
 
         this.ws.bind('lobby::connectedusers', (data) => {
@@ -88,8 +95,9 @@ export class WebSocketClient {
         });
 
         this.ws.bind('lobby::chathistory', (data) => {
-            this.chatHistory = data;
-            this.currWindow.webContents.send('lobby::chathistory', data);
+            this.chatHistory = data.chatHistory;
+            console.log(data)
+            this.currWindow.webContents.send('lobby::chathistory', this.chatHistory);
         });
 
         this.ws.bind('lobby::chatmessage', (data) => {
@@ -171,8 +179,9 @@ export class WebSocketClient {
         this.ws.emit('client::getlobbyusers');
     }
 
-    sendDisconnect(): void {
+    disconnect(): void {
         this.ws.emit('disconnect');
+        this.ws.close();
     }
 
     private resetConnectionTimeout(): void {
@@ -181,6 +190,7 @@ export class WebSocketClient {
         this.pingTimeout = setTimeout(() => {
             this.bConnectionAlive = false;
             this.ws.close();
+            this.currWindow.webContents.send('server::unreachable');
         }, CONNECTION_TIMEOUT);
     }
 

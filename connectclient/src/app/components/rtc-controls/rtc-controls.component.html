@@ -1,20 +1,26 @@
 <div class="control-bar">
-    <div (click)="onSettingsClick()" [ngClass]="{active: bSettingsActive}" class="settings-btn white control-btn">
+    <div (click)="onSettingsClick()" class="settings-btn white control-btn">
         <a><i class="fas fa-cog"></i></a>
     </div>
-    <span (click)="onMicroClick()" [ngClass]="{active: client.bMicroActive}" class="orange control-btn">
+    <span (click)="onMicroClick()" [ngClass]="{active: btnStates.bMicroActive}" class="orange control-btn">
         <a><i class="fas fa-lg fa-microphone"></i></a>
     </span>
-    <span [ngClass]="{active: client.bCamActive}" (click)="onVideoClick()" class="green control-btn">
+    <span [ngClass]="{active: btnStates.bCamActive}" (click)="onVideoClick()" class="green control-btn">
         <a><i class="fas fa-lg fa-video"></i></a>
     </span>
-    <span [ngClass]="{active: client.bScreenSharing}" (click)="onShareScreenClick()"  [hidden]="bJoinedLobby===false" class="blue control-btn">
+    <span [ngClass]="{active: btnStates.bScreenSharing}" (click)="onShareScreenClick()" @ellipticslide  [hidden]="bInRoom===false" class="blue control-btn">
         <a><i class="fas fa-lg fa-clone"></i></a>
     </span>
-    <span [ngClass]="{active: bChatOpen}" (click)="onToggleChatClick()" [hidden]="bJoinedLobby===false" class="white control-btn">
+    <span 
+        [ngClass]="{'active': btnStates.bChatOpen, 'chat-pending': !btnStates.bChatOpen && bMessagePending}" 
+        (click)="onToggleChatClick()" 
+        [hidden]="bInRoom===false" 
+        class="white control-btn"
+        @ellipticslide
+    >
         <a><i class="fa fa-lg fa-comments"></i></a>
     </span>
-    <span (click)="onJoinRoomClick('0'); bJoinedLobby = false" [hidden]="bJoinedLobby===false"  class="red control-btn">
+    <span (click)="onLeaveRoomClick()" @ellipticslide [hidden]="bInRoom===false"  class="red control-btn">
         <a><i class="fa fa-lg fa-times"></i></a>
     </span>
 </div>

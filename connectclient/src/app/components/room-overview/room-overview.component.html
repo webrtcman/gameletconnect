@@ -1,6 +1,6 @@
-<div class="wrapper">
-    <h1>Available Rooms:</h1>
-    <h2 *ngIf="availableRooms.length === 0"><small>None</small></h2>
+<div class="wrapper" [ngClass]="{'interactable': !bInRoom}">
+    <h1 class="fadeable" [ngClass]="{fadeout: bInRoom}">Available Rooms:</h1>
+    <h2 *ngIf="availableRooms.length === 0 && !bInRoom"><small>None</small></h2>
     <div @ellipticslide class="room-tile joinable" data-text="Join" *ngFor="let room of availableRooms"
         (click)="onJoinRoomClick(room.id)">
         <h4 class="room-label">
@@ -10,7 +10,7 @@
             </h3>
         </h4>
     </div>
-    <span (click)="onCreateRoomClick()" class="orange control-btn control-wide">
-        <a><i class="fas fa-lg fa-plus-circle"></i><p>&nbsp;Create Room</p></a>
+    <span (click)="onCreateRoomClick()"[ngClass]="{fadeout: bInRoom}" class="fadeable orange control-btn control-wide">
+        <a><i [ngClass]="{fadeout: bInRoom}" class="fas fa-lg fa-plus-circle"></i><p>&nbsp;Create Room</p></a>
     </span>
 </div>

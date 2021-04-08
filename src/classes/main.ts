@@ -1,7 +1,8 @@
 import { IpcReceiver } from './ipcreceiver';
 import { WebSocketClient } from './websocketclient';
-import { App, BrowserWindow, Tray } from 'electron';
+import { App, BrowserWindow, Tray, shell } from 'electron';
 import { mainWindowConfig } from '../electron_config/windowconfig';
+import { NewWindowWebContentsEvent } from 'electron/main';
 
 export default class Main {
 
@@ -14,6 +15,7 @@ export default class Main {
     static BrowserWindow;
 
     public static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
+        console.log(process.version);
         Main.application = app;
         Main.application.commandLine.appendSwitch('ignore-certificate-errors', 'true');
         Main.application.commandLine.appendSwitch('allow-insecure-localhost', 'true');
@@ -27,22 +29,31 @@ export default class Main {
     private static onReady(): void {
 
         Main.mainWindow = new Main.BrowserWindow(mainWindowConfig);
-        Main.mainWindow.loadURL(`file://${__dirname}/../../connectclient/dist/connectclient/index.html`);
-        console.log(`file://${__dirname}/../../connectclient/dist/connectclient/index.html`);
+        Main.mainWindow.loadFile(`${__dirname}/../../connectclient/dist/connectclient/index.html`);
+        // console.log(`file://${__dirname}/../../connectclient/dist/connectclient/index.html`);
         Main.mainWindow.on('closed', Main.onClose);
         Main.ipcReceiver = new IpcReceiver();
+        Main.mainWindow.once('ready-to-show', () => Main.onReadyToShow())
+    }
+
+    private static onReadyToShow(): void {
+        Main.mainWindow.show();
+        Main.mainWindow.webContents.on('new-window', (event, url) => this.onNewWindow(event, url));
+    }
+
+    private static onNewWindow(event: NewWindowWebContentsEvent, url: string): void {
+        event.preventDefault();
+        shell.openExternal(url);
     }
 
     public static onRtcInit(): void {
-        if (Main.wsClient)
-            return;
         Main.wsClient = new WebSocketClient(Main.mainWindow);
         Main.ipcReceiver.setWebsocketClient(Main.wsClient);
     }
 
     private static onClose(): void {
         if (Main.wsClient)
-            Main.wsClient.sendDisconnect();
+            Main.wsClient.disconnect();
 
         Main.mainWindow = null;
         Main.callWindow = null;

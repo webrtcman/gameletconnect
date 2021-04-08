@@ -14,12 +14,14 @@ import { PopupWindowComponent } from '../popup-window/popup-window.component';
 export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('userAuth') userAuthPopup: PopupWindowComponent;
+  @ViewChild('chat') chatPopup: PopupWindowComponent;
   @ViewChild('settings') settingsPopup: PopupWindowComponent;
   @ViewChild('roomCreator') roomCreatorPopup: PopupWindowComponent;
-  @ViewChild('screenShare') screenSharePopup: PopupWindowComponent;
+  @ViewChild('screenCapture') screenCapturePopup: PopupWindowComponent;
   @ViewChild('custom') customPopup: PopupWindowComponent;
 
   private popupRequestSubscription: Subscription;
+  private popupClosureSubscription: Subscription;
   public activeSettingsTab: SettingsTab;
   public customConfig: PopupConfig;
 
@@ -30,19 +32,30 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.popupRequestSubscription = this.interCompService
       .onPopupRequest()
-      .subscribe(popup => this.processPopupRequest(popup))
+      .subscribe(popup => this.processPopupRequest(popup));
+
+    this.popupClosureSubscription = this.interCompService
+      .onCloseAllPopupsRequest()
+      .subscribe(() => this.hideAllWindows());
   }
 
   ngAfterViewInit(): void {
-    this.userAuthPopup.hideWindow();
-    this.settingsPopup.hideWindow();
-    this.roomCreatorPopup.hideWindow();
-    this.screenSharePopup.hideWindow();
-    this.customPopup.hideWindow();
+    this.hideAllWindows();
   }
 
+  
   ngOnDestroy(): void {
     this.popupRequestSubscription.unsubscribe();
+    this.popupClosureSubscription.unsubscribe();
+  }
+
+  hideAllWindows() {
+    this.userAuthPopup.hideWindow();
+    this.chatPopup.hideWindow();
+    this.settingsPopup.hideWindow();
+    this.roomCreatorPopup.hideWindow();
+    this.screenCapturePopup.hideWindow();
+    this.customPopup.hideWindow();
   }
 
   private processPopupRequest(popup: PopupTemplate | PopupConfig) {
@@ -52,7 +65,7 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.customConfig = popup;
     this.customPopup.showWindow();
-
+    this.interCompService.requestChangeDetection();
   }
 
   private showTemplatedPopup(popup: PopupTemplate): void {
@@ -61,12 +74,15 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
       case(PopupTemplate.userAuth):
         this.userAuthPopup.showWindow();
         break;
+      case(PopupTemplate.chat):
+        this.chatPopup.showWindow();
+        break;
       case(PopupTemplate.roomCreation):
         this.roomCreatorPopup.showWindow();
         break;
 
-      case(PopupTemplate.screenSharePicker):
-        this.screenSharePopup.showWindow();
+      case(PopupTemplate.screenCapturePicker):
+        this.screenCapturePopup.showWindow();
       break;
 
       case(PopupTemplate.settingsGeneral):
@@ -96,6 +112,12 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.customConfig.callback();
     //delete callback to make sure it doesn't get called twice for some reason
     this.customConfig.callback = null;
+    
+  }
+
+  public onChatClose(): void {
+    this.interCompService.announceChatClosed();
+
     
   }
 

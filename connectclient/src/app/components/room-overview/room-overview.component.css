@@ -13,7 +13,22 @@
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-    color: rgba(255, 255, 255, 0.712)
+    color: rgba(255, 255, 255, 0.712);
+    pointer-events: none;
+}
+
+.interactable {
+    pointer-events: all;
+}
+
+.fadeable {
+    opacity: 1;
+    transition: opacity 0.25s;
+}
+
+.fadeable.fadeout {
+    opacity: 0;
+    transition: opacity 0.25s;
 }
 
 .room-label {

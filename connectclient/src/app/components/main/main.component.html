@@ -19,9 +19,9 @@
       <div [hidden]="bShowIframeHider === false" class="hack-iframe-hider"></div>
     </div>
     </as-split-area>
-      <as-split-area class="side-container" *ngIf="bActivateSidebar" [visible]="bShowSidebar" minSize="25" maxSize="99" [size]="25">
-        <app-starfield-background *ngIf="activeBackground === backgrounds.StarField" ></app-starfield-background>
-        <app-color-orb-background *ngIf="activeBackground === backgrounds.ColorOrbs"></app-color-orb-background>
+      <as-split-area class="side-container" [visible]="bShowSidebar" minSize="25" maxSize="99" [size]="25">
+        <app-starfield-background *ngIf="activeBackground === backgrounds.StarField && bShowSidebar" ></app-starfield-background>
+        <app-color-orb-background *ngIf="activeBackground === backgrounds.ColorOrbs && bShowSidebar"></app-color-orb-background>
         <app-rtc-side-client></app-rtc-side-client>
         <!-- <app-rtcclient></app-rtcclient> -->
       </as-split-area>

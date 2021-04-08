@@ -48,11 +48,13 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   public onConnectClick(): void {
-    if(!this.bActivateSidebar){
-      this.bShowSidebar = true;
-      this.bActivateSidebar = true;
-      return;
-    }
+    // if(!this.bActivateSidebar){
+    //   setTimeout(()=> {
+    //     this.bShowSidebar = true;
+    //   }, 500);
+    //   this.bActivateSidebar = true;
+    //   return;
+    // }
     this.bShowSidebar = !this.bShowSidebar;
   }
 
