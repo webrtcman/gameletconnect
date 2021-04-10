@@ -190,7 +190,7 @@ export class StarfieldBackgroundComponent implements OnInit, AfterViewInit, OnDe
     //Re-enter ng Zone. (requestAnimationFrame runs outside Zone)
     this.ngZone.run(() => {
       this.interCompService.requestPopup(new PopupConfig(
-        WindowType.warning,
+        WindowType.Warning,
         'Warning',
         'Performance problems were detected.<br>Consider changing the background to a simple,<br> unanimated one in the settings.',
         true,

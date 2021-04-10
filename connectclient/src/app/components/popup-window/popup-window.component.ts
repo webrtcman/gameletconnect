@@ -15,14 +15,18 @@ export class PopupWindowComponent implements OnInit {
 
   //Assign enum to member so it can be used in html template
   windowTypes = WindowType;
+
   @Input('title') title: string = 'Popup Title';
-  @Input('windowType') windowType: WindowType = WindowType.info;
+  @Input('dismissable') bDismissable: boolean = true;
+  @Input('windowType') windowType: WindowType = WindowType.Info;
   @Output('onClose') onClose: EventEmitter<void>;
 
   bWindowVisible: boolean = true;
   onShowSubject: Subject<void>;
 
-  constructor(private interCompService: InterCompService) {
+  constructor(
+    private changeDetectorRef: ChangeDetectorRef
+  ) {
     this.onShowSubject = new Subject<void>();
     this.bWindowVisible = false;
     this.onClose = new EventEmitter<void>();
@@ -42,7 +46,11 @@ export class PopupWindowComponent implements OnInit {
   hideWindow() {
     this.bWindowVisible = false;
     this.onClose.emit();
-    this.interCompService.requestChangeDetection();
+    this.changeDetectorRef.detectChanges();
+  }
+
+  public detectContentChange() {
+    this.changeDetectorRef.detectChanges();
   }
 
 }

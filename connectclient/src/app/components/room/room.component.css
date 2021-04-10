@@ -20,8 +20,8 @@
     pointer-events: all;
 }
 
-.room {
-    width: 85%;
+.videoarea {
+    width: 100%;
     height: 100%;
     display: flex;
     align-content: center;
@@ -32,6 +32,30 @@
     overflow: hidden;
 }
 
+.area-small {
+    height: 15%;
+}
+
+.area-shown {
+    height: 85%;
+    transition: height 0.3s;
+}
+.area-hidden {
+    height: 0%;
+    transition: height 0.3s;
+}
+
+.screenarea {
+    width: 100%;
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    overflow: hidden;
+    transition: height 0.3s;
+}
 
 .chat {
     height: 100%;

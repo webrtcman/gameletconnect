@@ -3,13 +3,13 @@ import { MediaType } from "./enums";
 export class StreamData {
     sourceId: string;
     consumerId: string;
-    stream: MediaStream;
-    streamType: MediaType
+    stream?: MediaStream;
+    streamType?: MediaType
 
     constructor(
         sourceId: string, 
         consumerId: string, 
-        stream: MediaStream, 
+        stream?: MediaStream, 
         streamType?: MediaType
     ){
         this.sourceId = sourceId;

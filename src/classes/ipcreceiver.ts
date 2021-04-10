@@ -24,7 +24,9 @@ export class IpcReceiver {
         ipcMain.on('client::login', (event, data) => {
             this.wsClient.login(data);
         });
-
+        ipcMain.on('client::setname', (event, data) => {
+            this.wsClient.setName(data);
+        });
         ipcMain.on('client::getlobbies', (event) => {
             this.wsClient.sendGetLobbies();
         })

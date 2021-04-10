@@ -1,1 +1,17 @@
-<p>general-settings works!</p>
+<h3>
+    <label class="control-switch">
+        <input [checked]="bDeviceWarning" (change)="onDeviceWarningCheck()" type="checkbox">
+        <span></span>
+        <i></i>
+    </label>
+    <span>&nbsp;&nbsp;Show warning for missing camera</span>
+</h3>
+
+<h4>Change Username:</h4>
+<div class="new-name-container">
+    <ng-container *ngIf="!bInRoom">
+        <input (keyup.enter)="onNameSubmit()" [(ngModel)]="userName" type="text">
+        <button class="btn" (click)="onNameSubmit()">Change</button>
+    </ng-container>
+    <h4 class="text-blue" *ngIf="bInRoom">You can't change your name while you are in a room.</h4>
+</div>

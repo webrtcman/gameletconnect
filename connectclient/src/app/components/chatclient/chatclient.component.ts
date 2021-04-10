@@ -19,7 +19,8 @@ export class ChatclientComponent implements OnInit, OnDestroy {
 
   constructor(
     private interCompService: InterCompService,
-    private chatService: ChatService
+    private chatService: ChatService,
+    private changeDetectorRef: ChangeDetectorRef
   ) 
   { 
     this.chatHistory = [];
@@ -32,7 +33,7 @@ export class ChatclientComponent implements OnInit, OnDestroy {
       .onChatUpdate()
       .subscribe(message => {
         this.chatHistory.push(message);
-        this.interCompService.requestChangeDetection();
+        this.changeDetectorRef.detectChanges();
         this.scrollToBottom();
       })
   }

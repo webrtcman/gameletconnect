@@ -2,11 +2,11 @@
     "video": {
         "resolution": {
             "width": {
-                "min": 640,
+                "min": 1280,
                 "ideal": 1920
             },
             "height": {
-                "min": 480,
+                "min": 720,
                 "ideal": 1080
             }
         },

@@ -11,14 +11,19 @@
 </app-popup>
 
 <app-popup #settings [title]="'Settings'">
-    <app-settings [activeTab]="activeSettingsTab"></app-settings>
+    <app-settings [windowRef]="roomCreator" [activeTab]="activeSettingsTab"></app-settings>
 </app-popup>
 
 <app-popup #screenCapture [windowType]="'info'" [title]="'Screen Share'">
     <app-screen-capture-picker [windowRef]="screenCapture"></app-screen-capture-picker>
 </app-popup>
 
-<app-popup #custom [windowType]="customConfig?.windowType" [title]="customConfig?.customTitle">
+<app-popup 
+    #custom 
+    [windowType]="customConfig?.windowType" 
+    [title]="customConfig?.customTitle"
+    [dismissable]="customConfig?.bDismissable"
+>
     <p class="custom-msg" [innerHTML]="customConfig?.customMessage"></p>
     <div *ngIf="customConfig?.bCustomBtn" class="flex-center full-width">
         <span (click)="closeCustomPopup()" class="green control-btn control-wide">

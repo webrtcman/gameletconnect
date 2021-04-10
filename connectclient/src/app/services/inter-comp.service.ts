@@ -16,8 +16,8 @@ import { RtcButtonStatus } from '../classes/buttonStatus';
 export class InterCompService {
   
   public clientId = "?";
-  room: Room;
   public usersInRoom: User[];
+  public bInRoom: boolean;
   
   private changeDetectionSubject: Subject<void>;
   private authenticationSubject: Subject<void>;
@@ -65,6 +65,10 @@ export class InterCompService {
     this.chatUpdateSubject.next(message);
   }
   announceLobbyChange(type: LobbyType): void {
+    if(type == LobbyType.Room)
+          this.bInRoom = true;
+        else
+          this.bInRoom = false;
     this.lobbyChangeSubject.next(type);
   }
   announceBackgroundChange(type: Background): void {

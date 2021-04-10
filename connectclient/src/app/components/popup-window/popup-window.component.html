@@ -6,11 +6,11 @@ cdkDragBoundary=".side-container"
 >
     <div class="window-titlebar" 
     cdkDragHandle
-    [ngClass]="{'title-danger': windowType === windowTypes.danger, 
-                'title-warning': windowType === windowTypes.warning, 
-                'title-info': windowType === windowTypes.info}"
+    [ngClass]="{'title-danger': windowType === windowTypes.Danger, 
+                'title-warning': windowType === windowTypes.Warning, 
+                'title-info': windowType === windowTypes.Info}"
     >
-        <div (click)="hideWindow()" class="control-btn red control-small window-close-btn">
+        <div *ngIf="bDismissable" (click)="hideWindow()" class="control-btn red control-small window-close-btn">
             <a><i class="fa fa-times"></i></a>
         </div>
         <h2>

@@ -3,7 +3,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { MediasoupService } from 'src/app/services/mediasoup.service';
 import { InterCompService } from 'src/app/services/inter-comp.service';
 import { Subscription } from 'rxjs';
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Buttons, LobbyType, MediaType, PopupTemplate } from 'src/app/classes/enums';
 import { User } from 'src/app/classes/user';
 import { StreamData } from 'src/app/classes/streamdata';
@@ -17,21 +17,26 @@ import { ellipticSlide, growShrink } from 'src/app/animations/rtc_animations';
 })
 export class RoomComponent implements OnInit, OnDestroy {
 
+  @ViewChild('screenarea') screenarea: ElementRef;
   @ViewChild('videoarea') videoarea: ElementRef;
   usersInRoom: User[];
   bChatDocked: boolean = false;
   bInRoom: boolean = false;
+  sharedScreens: number = 0;
+  
 
   lobbyChangeSubscription: Subscription;
   rtcButtonToggleSubscription: Subscription;
   rtcConsumerAddedSubscription: Subscription;
+  rtcConsumerRemovedSubscription: Subscription;
   screenCaptureSelectSubscription: Subscription;
 
 
   constructor(
     private websocketService: WebsocketService,
     private interCompService: InterCompService,
-    private mediasoupService: MediasoupService
+    private mediasoupService: MediasoupService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
 
   }
@@ -46,6 +51,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.lobbyChangeSubscription.unsubscribe();
     this.rtcButtonToggleSubscription.unsubscribe();
     this.rtcConsumerAddedSubscription.unsubscribe();
+    this.rtcConsumerRemovedSubscription.unsubscribe();
     this.screenCaptureSelectSubscription.unsubscribe();
   }
 
@@ -71,7 +77,11 @@ export class RoomComponent implements OnInit, OnDestroy {
   registerRtcSubscriptions() {
     this.rtcConsumerAddedSubscription = this.mediasoupService
       .onConsumerAdded()
-      .subscribe(consumers => this.mapNewConsumer(consumers))
+      .subscribe(consumer => this.mapNewConsumer(consumer));
+
+    this.rtcConsumerRemovedSubscription = this.mediasoupService
+      .onConsumerRemoved()
+      .subscribe(consumer => this.unmapRemovedConsumer(consumer))
   }
 
 
@@ -80,9 +90,10 @@ export class RoomComponent implements OnInit, OnDestroy {
       console.log('joined lobby', data);
       this.usersInRoom = [];
       data.forEach(user => {
-        this.usersInRoom.push(user);
+        if(user.id !== this.interCompService.clientId)
+          this.usersInRoom.push(user);
       });
-      this.interCompService.requestChangeDetection();
+      this.changeDetectorRef.detectChanges();
     });
 
     this.websocketService.on('lobby::userjoined', (event, data) => {
@@ -92,7 +103,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
       this.usersInRoom.push(data);
 
-      this.interCompService.requestChangeDetection();
+      this.changeDetectorRef.detectChanges();
     });
 
     this.websocketService.on('lobby::userleft', (event, data) => {
@@ -104,7 +115,7 @@ export class RoomComponent implements OnInit, OnDestroy {
         return;
 
       this.usersInRoom.splice(this.usersInRoom.indexOf(user), 1);
-      this.interCompService.requestChangeDetection();
+      this.changeDetectorRef.detectChanges();
     });
   }
 
@@ -117,8 +128,8 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Maps the incoming streams to the user objects
-   * @param consumers The audio & video streams this client receives from other users
+   * Maps an incoming stream to the user object that produces it
+   * @param consumer An audio & video stream this client receives from other users
    */
   private mapNewConsumer(consumer: StreamData): void {
 
@@ -140,7 +151,44 @@ export class RoomComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+    this.checkForScreenStreams();
+    this.interCompService.requestChangeDetection();
+  }
 
+  checkForScreenStreams(): void {
+    this.sharedScreens = 0;
+    this.usersInRoom.forEach(user => {
+      if(user.screenStream){
+        this.sharedScreens++;
+      }
+    })
+  }
+  /**
+   * Removes a removed consumer from the user object that produced it
+   * @param consumer 
+   */
+  private unmapRemovedConsumer(consumer): void {
+
+    let user = this.findUser(consumer.sourceId);
+
+    if (!user)
+      return;
+
+    switch (consumer.mediaType) {
+      case MediaType.audio:
+        user.audioStream = null;
+        break;
+      case MediaType.video:
+        user.camStream = null;
+        break;
+      case MediaType.screen:
+        user.screenStream = null;
+        break;
+      default:
+        break;
+    }
+    this.checkForScreenStreams();
+    this.interCompService.requestChangeDetection();
   }
 
   /**
@@ -167,13 +215,15 @@ export class RoomComponent implements OnInit, OnDestroy {
   onEnterRoom() {
     this.bInRoom = true;
     this.websocketService.getUsersInLobby();
-    this.mediasoupService.startRtc(this.interCompService.clientId);
+    setTimeout(() => this.mediasoupService.startRtc(this.interCompService.clientId), 500);
+    this.changeDetectorRef.detectChanges();
   }
 
   onLeaveRoom() {
     this.bInRoom = false;
     this.mediasoupService.stopRtc();
     this.usersInRoom = [];
+    this.changeDetectorRef.detectChanges();
   }
 
   private toggleMicrophone(bActive: boolean): void {
@@ -200,10 +250,9 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   startScreenCapture(): void {
-    if(this.bInRoom)
+    if (this.bInRoom)
       this.mediasoupService.produceScreenCapture();
   }
-
 
   //#region Room video size calculations
   area(increment, count, width, height, margin = 10) {
@@ -222,20 +271,30 @@ export class RoomComponent implements OnInit, OnDestroy {
     else return increment;
   }
 
-  calculateSize(bCalculateWidth: boolean): number {
+  calculateSize(bCamArea: boolean, bCalculateWidth: boolean): number {
     //let perf = performance.now();
-    let outWidth = 0;
-    let outHeight = 0;
-    let margin = 2;
-    let max = 0;
-
-    if (!this.videoarea)
+    if (!this.videoarea || !this.screenarea)
       return 0;
+    let outWidth: number = 0;
+    let outHeight: number = 0;
+    let margin: number = 2;
+    let max: number = 0;
 
-    let roomWidth = this.videoarea.nativeElement.offsetWidth - margin * 2;
-    let roomHeight = this.videoarea.nativeElement.offsetHeight - margin * 2;
+    let roomWidth: number;
+    let roomHeight: number;
+    let participantCount: number;
 
-    let participantCount = this.usersInRoom.length;
+    if(bCamArea) {
+      roomWidth = this.videoarea.nativeElement.offsetWidth - margin * 2;
+      roomHeight = this.videoarea.nativeElement.offsetHeight - margin * 2;
+      participantCount = this.usersInRoom.length;
+    }
+    else {
+      roomWidth = this.screenarea.nativeElement.offsetWidth - margin * 2;
+      roomHeight = this.screenarea.nativeElement.offsetHeight - margin * 2;
+      participantCount = this.sharedScreens;
+    }
+
 
     for (let i = 1; i < 2000; i++) {
       let element = this.area(i, participantCount, roomWidth, roomHeight, margin);
@@ -244,14 +303,15 @@ export class RoomComponent implements OnInit, OnDestroy {
         break;
       }
     }
-
     outWidth = max - margin * 2;
- 
+    console.log("recalc w:", outWidth)
+
     //console.log('perf: ', performance.now() - perf);
     if (bCalculateWidth)
       return outWidth;
 
     outHeight = outWidth * 0.5625;//16:9 aspect ratio
+    console.log("recalc h:", outHeight)
     return Math.round(outHeight);
   }
   //#endregion

@@ -1,12 +1,10 @@
-import { BrowserWindow, ipcMain, TouchBarScrubber } from 'electron';
+import { BrowserWindow } from 'electron';
+import { WEBSOCKETSERVER_URL, CONNECTION_TIMEOUT, MAX_CHATHISTORY_SIZE } from '../electron_config/environment';
 import { ChatMessage } from './chatmessage';
 import { EventWebSocket } from './eventwebsocket';
 
-const URL = process.env.WEBSOCKETSERVER_URL;
-const CONNECTION_TIMEOUT = parseInt(process.env.CONNECTION_TIMEOUT, 10);
-const MAX_CHATHISTORY_SIZE = parseInt(process.env.MAX_CHATHISTORY_SIZE, 10)
-
 export class WebSocketClient {
+
 
     ws: EventWebSocket;
     currWindow: BrowserWindow;
@@ -18,7 +16,7 @@ export class WebSocketClient {
 
     constructor(currWindow: BrowserWindow) {
         this.chatHistory =  [];
-        this.ws = new EventWebSocket(URL);
+        this.ws = new EventWebSocket(WEBSOCKETSERVER_URL);
         this.currWindow = currWindow;
         this.registerEvents();
     }
@@ -157,6 +155,10 @@ export class WebSocketClient {
 
     login(data): void {
         this.ws.emit('client::login', data);
+    }
+
+    setName(data: any) {
+        this.ws.emit('client::setname', data);
     }
 
     sendGetLobbies(): void {

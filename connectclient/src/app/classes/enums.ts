@@ -3,7 +3,6 @@ export enum MediaType {
   video = 'video',
   screen = 'screen',
   screenAudio = 'screenAudio',
-  audioOut = 'audioOut'
 }
 
 export enum SettingsTab {
@@ -14,9 +13,9 @@ export enum SettingsTab {
 }
 
 export enum WindowType {
-  info = 'info',
-  warning = 'warning',
-  danger = 'danger'
+  Info = 'info',
+  Warning = 'warning',
+  Danger = 'danger'
 }
 
 export enum LobbyType {

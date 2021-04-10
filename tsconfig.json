@@ -3,7 +3,7 @@
       "target": "es5",
       "module": "commonjs",
       "moduleResolution": "node",
-      "outDir": "build",
+      "outDir": "transpiled",
       "sourceMap": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
@@ -13,5 +13,5 @@
       "resolveJsonModule": true,
       "esModuleInterop": true
     },
-    "exclude": [ "node_modules", "connectclient", "out" ] 
+    "exclude": [ "node_modules", "connectclient", "out", "dist"] 
   }

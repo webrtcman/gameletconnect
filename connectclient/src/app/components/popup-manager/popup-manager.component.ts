@@ -1,7 +1,7 @@
 import { SettingsTab } from './../../classes/enums';
 import { PopupConfig } from 'src/app/classes/popupconfig';
 import { InterCompService } from 'src/app/services/inter-comp.service';
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { PopupTemplate } from 'src/app/classes/enums';
 import { PopupWindowComponent } from '../popup-window/popup-window.component';
@@ -25,7 +25,11 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
   public activeSettingsTab: SettingsTab;
   public customConfig: PopupConfig;
 
-  constructor(private interCompService: InterCompService) {
+  constructor(
+    private interCompService: InterCompService,
+    private changeDetectorRef: ChangeDetectorRef
+    
+    ) {
     
   }
 
@@ -42,7 +46,6 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.hideAllWindows();
   }
-
   
   ngOnDestroy(): void {
     this.popupRequestSubscription.unsubscribe();
@@ -65,12 +68,11 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.customConfig = popup;
     this.customPopup.showWindow();
-    this.interCompService.requestChangeDetection();
+    this.changeDetectorRef.detectChanges();
   }
 
   private showTemplatedPopup(popup: PopupTemplate): void {
     switch(popup) {
-
       case(PopupTemplate.userAuth):
         this.userAuthPopup.showWindow();
         break;
@@ -80,44 +82,41 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
       case(PopupTemplate.roomCreation):
         this.roomCreatorPopup.showWindow();
         break;
-
       case(PopupTemplate.screenCapturePicker):
         this.screenCapturePopup.showWindow();
       break;
-
       case(PopupTemplate.settingsGeneral):
         this.activeSettingsTab = SettingsTab.General;
         this.settingsPopup.showWindow();
       break;
-
       case(PopupTemplate.settingsAppearance):
         this.activeSettingsTab = SettingsTab.Appearance;
         this.settingsPopup.showWindow();
       break;
-
       case(PopupTemplate.settingsMedia):
         this.activeSettingsTab = SettingsTab.Media;
         this.settingsPopup.showWindow();
       break;
     }
-    this.interCompService.requestChangeDetection();
+    this.changeDetectorRef.detectChanges();
   }
 
   private closeCustomPopup(): void {
     this.customPopup.hideWindow();
 
-    if(!this.customConfig.callback)
+    if(!this.customConfig.callback){
+      this.changeDetectorRef.detectChanges();
       return;
+    }
 
     this.customConfig.callback();
     //delete callback to make sure it doesn't get called twice for some reason
     this.customConfig.callback = null;
-    
+    this.changeDetectorRef.detectChanges();
   }
 
   public onChatClose(): void {
     this.interCompService.announceChatClosed();
-
     
   }
 

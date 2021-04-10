@@ -1,9 +1,10 @@
 import { InterCompService } from 'src/app/services/inter-comp.service';
 import { Subscription } from 'rxjs';
 import { ScreenCaptureService } from '../../services/screen-capture.service';
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { PopupWindowComponent } from '../popup-window/popup-window.component';
 import { DesktopCapturerSource } from 'electron';
+
 
 @Component({
   selector: 'app-screen-capture-picker',
@@ -23,7 +24,11 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
   bLoading: boolean = true;
 
 
-  constructor(private interCompService: InterCompService, private screenCaptureService: ScreenCaptureService) { 
+  constructor(
+    private interCompService: InterCompService, 
+    private screenCaptureService: ScreenCaptureService,
+    private changeDetectorRef: ChangeDetectorRef
+    ) { 
     this.availableSources = [];
     this.screenSources = [];
     this.windowSources = [];
@@ -46,6 +51,7 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
     this.availableSources = await this.screenCaptureService.getCaptureSources();
     this.groupSources();
     this.bLoading = false;
+    this.changeDetectorRef.detectChanges();
   }
 
   groupSources(): void {
@@ -59,14 +65,17 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
         this.screenSources.push(source);
       else if(srcType === 'window')
         this.windowSources.push(source);
-    })
+    });
   }
 
   public onSourceClick(sourceId: string): void {
-    console.log(sourceId);
     this.screenCaptureService.setConfig(sourceId, this.bShareAudio);
     this.interCompService.announceScreenCaptureSelect();
     this.windowRef.hideWindow();
   }
 
+  public onShareAudioCheck() {
+    this.bShareAudio = !this.bShareAudio;
+    this.changeDetectorRef.detectChanges();
+  }
 }

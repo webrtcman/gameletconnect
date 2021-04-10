@@ -25,11 +25,11 @@
     </span>
 </div>
 <div [ngSwitch]="activeTab">
-    <app-general-settings *ngSwitchCase="settingsTab.General"></app-general-settings>
+    <app-general-settings [windowRef]="windowRef" *ngSwitchCase="settingsTab.General"></app-general-settings>
     <app-media-settings *ngSwitchCase="settingsTab.Media"></app-media-settings>
     <app-appearance-settings *ngSwitchCase="settingsTab.Appearance"></app-appearance-settings>
     <div *ngSwitchCase="settingsTab.About">
-        <h3>Version: 0.3.2</h3>
+        <h3>Version: 0.5.2</h3>
         <h4> Written by Johannes Franzen 2021</h4>
     </div>
 </div>

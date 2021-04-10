@@ -5,7 +5,6 @@ import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@ang
 import { IOutputData, SplitComponent } from 'angular-split';
 
 
-
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -66,6 +65,7 @@ export class MainComponent implements OnInit, OnDestroy {
   public dragEndHandler($event: IOutputData) {
     console.log('dragEndHandler', { event: $event });
     this.bShowIframeHider = false;
+    this.changeDetectorRef.detectChanges();
   }
 
   public splitGutterClick({ gutterNum }: IOutputData) {

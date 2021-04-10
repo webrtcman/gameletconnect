@@ -1,6 +1,7 @@
+import { PopupWindowComponent } from './../popup-window/popup-window.component';
 import { InterCompService } from 'src/app/services/inter-comp.service';
 import { SettingsTab } from 'src/app/classes/enums';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-settings',
@@ -9,21 +10,23 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class SettingsComponent implements OnInit {
 
-  //Woekaround to use enum in template
+  //Workaround to use enum in template
   settingsTab = SettingsTab;
-
+  @Input('windowRef') windowRef: PopupWindowComponent;
   @Input('activeTab') activeTab: SettingsTab = SettingsTab.General;
 
 
 
-  constructor(private interCompService: InterCompService) { }
+  constructor(
+    private changeDetectorRef: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
   }
 
   onTabClick(tab: SettingsTab): void {
     this.activeTab = tab;
-    this.interCompService.requestChangeDetection();
+    this.changeDetectorRef.detectChanges();
   }
 
 

@@ -30,7 +30,6 @@ export default class Main {
 
         Main.mainWindow = new Main.BrowserWindow(mainWindowConfig);
         Main.mainWindow.loadFile(`${__dirname}/../../connectclient/dist/connectclient/index.html`);
-        // console.log(`file://${__dirname}/../../connectclient/dist/connectclient/index.html`);
         Main.mainWindow.on('closed', Main.onClose);
         Main.ipcReceiver = new IpcReceiver();
         Main.mainWindow.once('ready-to-show', () => Main.onReadyToShow())
@@ -58,8 +57,6 @@ export default class Main {
         Main.mainWindow = null;
         Main.callWindow = null;
         Main.connectTray = null;
-
-
     }
     private static onWindowAllClosed() {
         if (process.platform !== 'darwin') {

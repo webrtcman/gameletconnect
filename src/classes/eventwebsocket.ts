@@ -1,6 +1,6 @@
+import { HANDSHAKE_TIMEOUT } from "../electron_config/environment";
 const WebSocket = require('ws');
 
-const HANDSHAKE_TIMEOUT = parseInt(process.env.HANDSHAKE_TIMEOUT);
 /**
  * A wrapper for the awesome ws module (https://www.npmjs.com/package/ws)
  * that sends & parses JSON data to emit and listen to custom events.

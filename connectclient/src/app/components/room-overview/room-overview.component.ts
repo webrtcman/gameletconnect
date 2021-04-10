@@ -19,7 +19,8 @@ export class RoomOverviewComponent implements OnInit, OnDestroy {
 
   constructor(
     private websocketService: WebsocketService, 
-    private interCompService: InterCompService
+    private interCompService: InterCompService,
+    private changeDetectorRef: ChangeDetectorRef
   ) { 
 
   }
@@ -34,6 +35,8 @@ export class RoomOverviewComponent implements OnInit, OnDestroy {
         this.onEnterRoom();
       else
         this.onLeaveRoom();
+
+      this.changeDetectorRef.detectChanges();
     })
   }
   ngOnDestroy(): void {
@@ -57,7 +60,7 @@ export class RoomOverviewComponent implements OnInit, OnDestroy {
       data.forEach(lobby => {
         this.availableRooms.push(new Room(lobby.id, lobby.name, lobby.connectedUsers, lobby.maxUsers));
       });
-      this.interCompService.requestChangeDetection();
+      this.changeDetectorRef.detectChanges();
     });
 
     this.websocketService.on('server::lobbychanged', (event, data) => {
@@ -71,7 +74,7 @@ export class RoomOverviewComponent implements OnInit, OnDestroy {
         return;
 
       this.availableRooms.splice(this.availableRooms.indexOf(room), 1);
-      this.interCompService.requestChangeDetection();
+      this.changeDetectorRef.detectChanges();
     })
 
     this.websocketService.on('lobby::joinsuccess', (event) => {
@@ -89,7 +92,7 @@ export class RoomOverviewComponent implements OnInit, OnDestroy {
     //add room to list if this client doesnt know it yet and it isnt full
     if(!room && data.connectedUsers < data.maxUsers){
       this.availableRooms.push(data);
-      this.interCompService.requestChangeDetection();
+      this.changeDetectorRef.detectChanges();
       return;
     }
     //update members if room exists
@@ -101,7 +104,7 @@ export class RoomOverviewComponent implements OnInit, OnDestroy {
     if(room.connectedUsers === room.maxUsers)
       this.availableRooms.splice(this.availableRooms.indexOf(room), 1);
 
-      this.interCompService.requestChangeDetection();
+      this.changeDetectorRef.detectChanges();
   }
 
   onCreateRoomClick() {

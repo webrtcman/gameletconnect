@@ -3,14 +3,15 @@ import { MediaKind, RtpCapabilities, RtpParameters } from 'mediasoup-client/lib/
 import { Injectable } from '@angular/core';
 import { IpcRenderer } from 'electron'
 import { DtlsParameters } from 'mediasoup-client/lib/Transport';
+import { MediaType } from '../classes/enums';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketService {
-
+  
   private ipc: IpcRenderer | undefined;
-
+  
   constructor() {
     if (window.require) {
       try {
@@ -21,7 +22,7 @@ export class WebsocketService {
       console.warn('Electron IPC Service could not be loaded.');
     }
   }
-
+  
   /**
    * Subscribe to electron ipc events
    * @param event_name
@@ -39,17 +40,20 @@ export class WebsocketService {
     }
     this.ipc.once(event_name, callback);
   }
-
+  
   public deregisterEvent( event:{name, func}): void {
     this.ipc.removeListener(event.name, event.func);
   }
-
+  
   public connectToServer(): void {
     this.ipc.send('client::connect');
   }
-
+  
   public login(name: string, password: string): void {
     this.ipc.send('client::login', {name, password});
+  }
+  public setName(username: string) {
+    this.ipc.send('client::setname', username);
   }
 
   public sendChatMessage(message: string): void {
@@ -90,8 +94,8 @@ export class WebsocketService {
     this.ipc.send('client_rtc::connectTransport', { dtlsParameters, bIsProducerTransport });
   }
 
-  public produce(rtpParameters: RtpParameters, mediaKind: MediaKind): void {
-    this.ipc.send('client_rtc::produce', { rtpParameters, mediaKind });
+  public produce(rtpParameters: RtpParameters, mediaType: MediaType): void {
+    this.ipc.send('client_rtc::produce', { rtpParameters, mediaType });
   }
 
   public consume(producerId: string, rtpCapabilities: RtpCapabilities): void {

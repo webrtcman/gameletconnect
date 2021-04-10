@@ -163,7 +163,7 @@ export class RtcSettingsService {
       message += 'No Camera is connected to the Computer!<br>'
 
     popupConfig = new PopupConfig(
-      WindowType.warning,
+      WindowType.Warning,
       'Warning',
       message,
       true,
@@ -185,7 +185,7 @@ export class RtcSettingsService {
    * @param onSpeakCb Callback that fires when user starts speaking
    * @param onStopSpeakCb Callback that fires when user stops speaking
    */
-  public async startSpeechDetection(onSpeakCb, onStopSpeakCb): Promise<void> {
+  public async startSpeechDetection(onSpeakCb: Function, onStopSpeakCb: Function): Promise<void> {
 
     const mediaConstraints = {
       audio: {
@@ -200,18 +200,12 @@ export class RtcSettingsService {
 
     let options = {
       threshold: this.microphoneSettings.customSensitivity,
-      interval: 16
+      interval: 17
     };
     this.speechEvents = hark(stream, options);
 
-    this.speechEvents.on('speaking', () => {
-      console.log("talking")
-      onSpeakCb();
-    });
-    this.speechEvents.on('stopped_speaking', () => {
-      console.log('stopped talking')
-      onStopSpeakCb();
-    })
+    this.speechEvents.on('speaking', () => onSpeakCb());
+    this.speechEvents.on('stopped_speaking', () => onStopSpeakCb());
   }
 
   /**
@@ -230,7 +224,7 @@ export class RtcSettingsService {
    */
   public showCameraAccessError(): void {
     let popupConfig = new PopupConfig(
-      WindowType.danger,
+      WindowType.Danger,
       'Error',
       'An error occured while trying to access your camera.<br>'+
       "Please make sure your camera isn't used by another application<br>"+

@@ -111,7 +111,7 @@ export class RtcSideClientComponent implements OnInit, OnDestroy {
 
   onLoginFailed(): void {
     let popupConfig = new PopupConfig(
-      WindowType.danger,
+      WindowType.Danger,
       'Login Error',
       'Login with stored data failed.<br>You will need to login again.',
       false,
@@ -130,7 +130,7 @@ export class RtcSideClientComponent implements OnInit, OnDestroy {
     this.bConnected = false;
     this.interCompService.announceLobbyChange(LobbyType.Base);
     let popupConfig = new PopupConfig(
-      WindowType.danger,
+      WindowType.Danger,
       'No Connection',
       'Gamelet Connect could not connect to the internet.<br>'
       + 'You are either offline or the internet access is blocked for this application.<br>'
@@ -150,7 +150,7 @@ export class RtcSideClientComponent implements OnInit, OnDestroy {
     let messageSnippet = this.bConnectedAtleastOnce ? 'lost connection' : 'could not reach';
 
     let popupConfig = new PopupConfig(
-      WindowType.danger,
+      WindowType.Danger,
       'Server unreachable',
       `Gamelet Connect ${messageSnippet} to the Conferencing Server.<br>`
       + 'Please retry later.<br>'

@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 import { Buttons, LobbyType, PopupTemplate } from './../../classes/enums';
 import { InterCompService } from '../../services/inter-comp.service';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { RtcButtonStatus } from 'src/app/classes/buttonStatus';
 import { ellipticSlide } from 'src/app/animations/rtc_animations';
 @Component({
@@ -13,7 +13,7 @@ import { ellipticSlide } from 'src/app/animations/rtc_animations';
 export class RtcControlsComponent implements OnInit, OnDestroy {
 
   public bInRoom: boolean = false;
-  chatSound: HTMLAudioElement;
+  private chatSound: HTMLAudioElement;
 
   lobbyChangeSubscription: Subscription;
   chatUpdateSubscription: Subscription;
@@ -27,7 +27,10 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
   }
   bMessagePending: boolean;
 
-  constructor(private interCompService: InterCompService) { 
+  constructor(
+    private interCompService: InterCompService,
+    private changeDetectorRef: ChangeDetectorRef
+    ) { 
     this.chatSound = new Audio('./assets/chatmsg.mp3');
     this.chatSound.load();
   }
@@ -38,8 +41,17 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
       .subscribe((lobbyType) => {
         if(lobbyType == LobbyType.Room)
           this.bInRoom = true;
-        else
+        else {
           this.bInRoom = false;
+          this.btnStates = {
+            bMicroActive: false,
+            bCamActive: false,
+            bScreenSharing: false,
+            bChatOpen: false
+          }
+        }
+
+        this.changeDetectorRef.detectChanges();
       });
 
       this.chatUpdateSubscription = this.interCompService
@@ -49,11 +61,15 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
             return;
           this.bMessagePending = true;
           this.chatSound.play();
+          this.changeDetectorRef.detectChanges();
         })
 
       this.chatCloseSubscription = this.interCompService
         .onChatClose()
-        .subscribe(() => this.btnStates.bChatOpen = false);
+        .subscribe(() => {
+          this.btnStates.bChatOpen = false;
+          this.changeDetectorRef.detectChanges();
+        });
   }
 
   ngOnDestroy(): void {
@@ -73,6 +89,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
         Buttons.Microphone,
         this.btnStates.bMicroActive
     ));
+    this.changeDetectorRef.detectChanges();
   }
   onVideoClick(): void {
     this.btnStates.bCamActive = !this.btnStates.bCamActive;
@@ -81,6 +98,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
         Buttons.Camera,
         this.btnStates.bCamActive
     ));
+    this.changeDetectorRef.detectChanges();
   }
   onShareScreenClick(): void {
     this.btnStates.bScreenSharing = !this.btnStates.bScreenSharing;
@@ -89,6 +107,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
         Buttons.ScreenCapture,
         this.btnStates.bScreenSharing
     ));
+    this.changeDetectorRef.detectChanges();
   }
   onToggleChatClick(): void {
     this.btnStates.bChatOpen = !this.btnStates.bChatOpen;
@@ -103,6 +122,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
         Buttons.Chat,
         this.btnStates.bChatOpen
     ));
+    this.changeDetectorRef.detectChanges();
   }
 
   onLeaveRoomClick(): void {
@@ -110,5 +130,6 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
       Buttons.LeaveRoom,
       true
     ))
+    this.changeDetectorRef.detectChanges();
   }
 }

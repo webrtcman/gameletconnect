@@ -1,0 +1,17 @@
+.new-name-container {
+    display: flex;
+    width: 100%;
+}
+
+.new-name-container input {
+    flex-grow: 4;
+}
+.new-name-container button {
+    flex-grow: 1;
+}
+
+h3 {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
