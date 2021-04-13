@@ -1,3 +1,4 @@
+import { Updater } from './updater';
 import { IpcReceiver } from './ipcreceiver';
 import { WebSocketClient } from './websocketclient';
 import { App, BrowserWindow, Tray, shell } from 'electron';
@@ -12,13 +13,14 @@ export default class Main {
     static connectTray: Tray;
     static wsClient: WebSocketClient;
     static ipcReceiver: IpcReceiver;
+    static updater: Updater;
     static BrowserWindow;
 
     public static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
-        console.log(process.version);
         Main.application = app;
         Main.application.commandLine.appendSwitch('ignore-certificate-errors', 'true');
         Main.application.commandLine.appendSwitch('allow-insecure-localhost', 'true');
+        app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
         
         Main.application.once('ready', Main.onReady);
         Main.application.on('window-all-closed', Main.onWindowAllClosed);
@@ -32,11 +34,13 @@ export default class Main {
         Main.mainWindow.loadFile(`${__dirname}/../../connectclient/dist/connectclient/index.html`);
         Main.mainWindow.on('closed', Main.onClose);
         Main.ipcReceiver = new IpcReceiver();
-        Main.mainWindow.once('ready-to-show', () => Main.onReadyToShow())
+        Main.updater = new Updater();
+        Main.mainWindow.once('ready-to-show', Main.onReadyToShow)
     }
 
     private static onReadyToShow(): void {
         Main.mainWindow.show();
+        Main.updater.checkForUpdates();
         Main.mainWindow.webContents.on('new-window', (event, url) => this.onNewWindow(event, url));
     }
 
@@ -58,6 +62,7 @@ export default class Main {
         Main.callWindow = null;
         Main.connectTray = null;
     }
+
     private static onWindowAllClosed() {
         if (process.platform !== 'darwin') {
             Main.application.quit();
@@ -65,6 +70,6 @@ export default class Main {
     }
 
     private static onDidFailLoad() {
-        Main.mainWindow.loadURL(`file://${__dirname}/../connectclient/dist/connectclient/index.html`);
+        Main.mainWindow.loadFile(`${__dirname}/../connectclient/dist/connectclient/index.html`);
     }
 }

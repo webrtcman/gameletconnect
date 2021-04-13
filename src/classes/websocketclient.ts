@@ -186,41 +186,42 @@ export class WebSocketClient {
         this.ws.close();
     }
 
+    
+    public requestProducers(): void {
+        this.ws.emit('client_rtc::getproducers');
+    }
+    
+    public requestRtpCapabilities(): void {
+        this.ws.emit('client_rtc::getRouterRtpCapabilities');
+    }
+    
+    public createTransport(data): void {
+        this.ws.emit('client_rtc::createWebRtcTransport', data)
+    }
+    
+    public connectTransport(data): void {
+        this.ws.emit('client_rtc::connectTransport', data);
+    }
+    
+    public produce(data): void {
+        this.ws.emit('client_rtc::produce', data);
+    }
+    
+    public consume(data): void {
+        this.ws.emit('client_rtc::consume', data);
+    }
+    
+    public closeProducer(data){
+        this.ws.emit('client_rtc::producerClosed', data);
+    }
+    
     private resetConnectionTimeout(): void {
         clearTimeout(this.pingTimeout);
-
+    
         this.pingTimeout = setTimeout(() => {
             this.bConnectionAlive = false;
             this.ws.close();
             this.currWindow.webContents.send('server::unreachable');
         }, CONNECTION_TIMEOUT);
     }
-
-    public requestProducers(): void {
-        this.ws.emit('client_rtc::getproducers');
-      }
-   
-      public requestRtpCapabilities(): void {
-       this.ws.emit('client_rtc::getRouterRtpCapabilities');
-     }
-   
-      public createTransport(data): void {
-        this.ws.emit('client_rtc::createWebRtcTransport', data)
-      }
-   
-      public connectTransport(data): void {
-        this.ws.emit('client_rtc::connectTransport', data);
-      }
-   
-      public produce(data): void {
-         this.ws.emit('client_rtc::produce', data);
-      }
-   
-      public consume(data): void {
-        this.ws.emit('client_rtc::consume', data);
-      }
-   
-      public closeProducer(data){
-        this.ws.emit('client_rtc::producerClosed', data);
-      }
 }
