@@ -20,11 +20,10 @@ export default class Main {
         Main.application = app;
         Main.application.commandLine.appendSwitch('ignore-certificate-errors', 'true');
         Main.application.commandLine.appendSwitch('allow-insecure-localhost', 'true');
-        app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
-        
+        Main.application.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
         Main.application.once('ready', Main.onReady);
         Main.application.on('window-all-closed', Main.onWindowAllClosed);
-
+        
         Main.BrowserWindow = browserWindow;
     }
 
@@ -39,9 +38,10 @@ export default class Main {
     }
 
     private static onReadyToShow(): void {
+        Main.mainWindow.setMenu(null);
         Main.mainWindow.show();
         Main.updater.checkForUpdates();
-        Main.mainWindow.webContents.on('new-window', (event, url) => this.onNewWindow(event, url));
+        Main.mainWindow.webContents.on('new-window', (event, url) => Main.onNewWindow(event, url));
     }
 
     private static onNewWindow(event: NewWindowWebContentsEvent, url: string): void {

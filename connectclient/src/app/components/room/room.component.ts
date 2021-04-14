@@ -84,6 +84,18 @@ export class RoomComponent implements OnInit, OnDestroy {
       .subscribe(consumer => this.unmapRemovedConsumer(consumer))
   }
 
+  playAllVids() {
+    let vids = document.getElementsByTagName('video');
+    setTimeout(()=> {
+      if(vids){
+
+        for(let i = 0; i < vids.length; i++) {
+          vids[i].play();
+        }
+        this.interCompService.requestChangeDetection();
+      }
+    }, 1000)
+  }
 
   registerWebsocketEvents(): void {
     this.websocketService.on('lobby::connectedusers', (event, data) => {
@@ -152,6 +164,7 @@ export class RoomComponent implements OnInit, OnDestroy {
         break;
     }
     this.checkForScreenStreams();
+    this.playAllVids();
     this.interCompService.requestChangeDetection();
   }
 

@@ -1,10 +1,10 @@
 {
   "name": "gameletconnect",
-  "version": "0.6.1",
+  "version": "0.6.3",
   "description": "An electron client for the gamelet suite",
   "main": "transpiled/app.js",
   "scripts": {
-    "dev": "tsc && ng build && electron .",
+    "dev": "tsc && cd connectclient && ng build && cd .. && electron .",
     "ngbuild": "cd connectclient && ng build --prod && cd ..",
     "localbuild": "tsc && npm run ngbuild && electron-builder -w",
     "release": "tsc && npm run ngbuild && electron-builder -w --publish 'onTagOrDraft'"
