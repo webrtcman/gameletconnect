@@ -13,7 +13,7 @@
       <div class="menu-overlay">
         <span [ngClass]="{active: bShowSidebar}" (click)="onConnectClick()" class="light-blue control-btn"><a> <i class="fa fa-2x fa-users"></i> </a></span>
       </div>
-      <iframe frameborder="0" src="https://recordingstudio.gamelet.eu"></iframe>
+      <iframe frameborder="0" allow="camera;microphone" src="https://recordingstudio.gamelet.eu"></iframe>
 
       <!--This is needed to prevent weird behavior from rescaling an iframe-->
       <div [hidden]="bShowIframeHider === false" class="hack-iframe-hider"></div>

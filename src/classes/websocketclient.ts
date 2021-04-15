@@ -26,8 +26,11 @@ export class WebSocketClient {
         this.ws.bind('error', (err) => {
             console.log('caught error:')
             console.log(err);
-            if(err.message == 'Opening handshake has timed out' || err.code == 'ECONNREFUSED')
-                this.currWindow.webContents.send('server::unreachable');
+            // if(err.message == 'Opening handshake has timed out' || err.code == 'ECONNREFUSED')
+                
+            this.currWindow.webContents.send('server::unreachable');
+            
+           
 
         })
         //#region server events (events with, connection logic, multiple lobbies or lobby switching involved)
