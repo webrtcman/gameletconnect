@@ -1,3 +1,24 @@
+<h2>Conferencing</h2>
+<h3>
+    <label class="control-switch">
+        <input [checked]="rtcPreferences.bShowOwnVideo" (change)="onShowOwnVideoCheck()" type="checkbox">
+        <span></span>
+        <i></i>
+    </label>
+    <span>&nbsp;&nbsp;Show own video-frame</span>
+</h3>
+
+<h3>
+    <label class="control-switch">
+        <input [checked]="rtcPreferences.bHighlightSpeakers" (change)="onHighlightSpeakersCheck()" type="checkbox">
+        <span></span>
+        <i></i>
+    </label>
+    <span>&nbsp;&nbsp;Highlight speaking users</span>
+</h3>
+
+
+<h2>Miscellaneous</h2>
 <h3>
     <label class="control-switch">
         <input [checked]="bDeviceWarning" (change)="onDeviceWarningCheck()" type="checkbox">

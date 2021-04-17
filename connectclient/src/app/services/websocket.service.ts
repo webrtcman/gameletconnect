@@ -45,6 +45,9 @@ export class WebsocketService {
     this.ipc.removeListener(event.name, event.func);
   }
   
+  public getVersion(): void {
+    this.ipc.send('client::version');
+  }
   public connectToServer(): void {
     this.ipc.send('client::connect');
   }
@@ -55,56 +58,64 @@ export class WebsocketService {
   public setName(username: string) {
     this.ipc.send('client::setname', username);
   }
-
+  
   public sendChatMessage(message: string): void {
     this.ipc.send('client::chatmessage', message);
   }
-
+  
   public getLobbies(): void {
     this.ipc.send('client::getlobbies');
   }
-
+  
   public createLobby(config: RoomConfig): void {
     this.ipc.send('client::createlobby', config);
   }
-
+  
   public joinLobby(lobbyId: string): void {
     this.ipc.send('client::joinlobby', lobbyId);
   }
-
+  
   public getUsersInLobby(): void {
     this.ipc.send('client::getlobbyusers');
   }
-
+  
   //RTC events
   public requestProducers(): void {
     this.ipc.send('client_rtc::getproducers');
   }
 
+  
   public requestRtpCapabilities(): void {
     this.ipc.send('client_rtc::getRouterRtpCapabilities');
   }
-
+  
   public createTransports(): void {
     this.ipc.send('client_rtc::createWebRtcTransport', { bIsProducerTransport: true });
     this.ipc.send('client_rtc::createWebRtcTransport', { bIsProducerTransport: false })
   }
-
+  
   public connectTransport(dtlsParameters: DtlsParameters, bIsProducerTransport: boolean): void {
     this.ipc.send('client_rtc::connectTransport', { dtlsParameters, bIsProducerTransport });
   }
-
+  
   public produce(rtpParameters: RtpParameters, mediaType: MediaType): void {
     this.ipc.send('client_rtc::produce', { rtpParameters, mediaType });
   }
-
+  
   public consume(producerId: string, rtpCapabilities: RtpCapabilities): void {
     console.log(`consume send`,{ producerId, rtpCapabilities })
     this.ipc.send('client_rtc::consume', { producerId, rtpCapabilities });
   }
-
-  public closeProducer(producerId: string) {
+  
+  public closeProducer(producerId: string):void {
     this.ipc.send('client_rtc::producerClosed', { producerId });
   }
+  
+  public sendClientSpeaking():void {
+    this.ipc.send('client_rtc::speaking');
+  }
 
+  public sendClientStoppedSpeaking():void {
+    this.ipc.send('client_rtc::stoppedSpeaking');
+  }
 }

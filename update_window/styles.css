@@ -1,0 +1,105 @@
+body {
+    position: relative;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 0;
+    color: #5a5a5a;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-user-select: none;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+#header {
+    -webkit-app-region: drag;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: 0;
+    background: rgb(250, 250, 250);
+    text-align: center;
+}
+
+.content {
+    width: 100%;
+    padding-top: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+
+#dynamic-container {
+    padding: 5px;
+    height: 60vh;
+    max-height: 50vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#input-container {
+    margin-top: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn {
+    outline: none;
+    border: none;
+    
+    width: 130px;
+    height: 40px;
+    padding: 7px;
+    margin-left: 7px;
+    margin-right: 7px;
+}
+#accept-btn {
+    background: #ff8000e7;
+    color: #fff;
+}
+#accept-btn:hover {
+    background: #ff8000;
+}
+#abort-btn {
+    background: #b6b6b6ea;
+    color: #fff;
+}
+#abort-btn:hover {
+    background: #b6b6b6;
+}
+
+#downloaded-msg {
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color:#ff8000;
+}
+
+#progress-outer {
+    width: 100%;
+    height: 20px;
+    display: block;
+    background-color: #eee;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+
+#progress-value {
+    width: 0;
+    background-image:
+         -webkit-linear-gradient(-45deg, 
+                                 transparent 33%, rgba(0, 0, 0, .1) 33%, 
+                                 rgba(0,0, 0, .1) 66%, transparent 66%),
+         -webkit-linear-gradient(top, 
+                                 rgba(255, 255, 255, .25), 
+                                 rgba(0, 0, 0, .25)),
+         -webkit-linear-gradient(left, #09c, #ff8000);
+  
+      border-radius: 2px; 
+      height: 100%;
+      background-size: 35px 20px, 100% 100%, 100% 100%;
+      transition: all 0.7s;
+}

@@ -1,7 +1,7 @@
 import { Updater } from './updater';
 import { IpcReceiver } from './ipcreceiver';
 import { WebSocketClient } from './websocketclient';
-import { App, BrowserWindow, Tray, shell } from 'electron';
+import { App, BrowserWindow, Tray, shell, Notification } from 'electron';
 import { mainWindowConfig } from '../electron_config/windowconfig';
 import { NewWindowWebContentsEvent } from 'electron/main';
 
@@ -15,11 +15,12 @@ export default class Main {
     static ipcReceiver: IpcReceiver;
     static updater: Updater;
     static BrowserWindow;
+    static version: string = "";
 
     public static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
         Main.application = app;
-        Main.application.commandLine.appendSwitch('ignore-certificate-errors', 'true');
-        Main.application.commandLine.appendSwitch('allow-insecure-localhost', 'true');
+        // Main.application.commandLine.appendSwitch('ignore-certificate-errors', 'true');
+        // Main.application.commandLine.appendSwitch('allow-insecure-localhost', 'true');
         Main.application.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
         Main.application.once('ready', Main.onReady);
         Main.application.on('window-all-closed', Main.onWindowAllClosed);
@@ -28,17 +29,21 @@ export default class Main {
     }
 
     private static onReady(): void {
+        if(process.platform === "win32")
+            Main.application.setAppUserModelId("com.gamelet.gameletconnect");
+            
+            Main.ipcReceiver = new IpcReceiver();
+            Main.updater = new Updater();
+            Main.ipcReceiver.setUpdater(Main.updater);
 
-        Main.mainWindow = new Main.BrowserWindow(mainWindowConfig);
-        Main.mainWindow.loadFile(`${__dirname}/../../connectclient/dist/connectclient/index.html`);
-        Main.mainWindow.on('closed', Main.onClose);
-        Main.ipcReceiver = new IpcReceiver();
-        Main.updater = new Updater();
+            Main.mainWindow = new Main.BrowserWindow(mainWindowConfig);
+            Main.mainWindow.loadFile(`${__dirname}/../../connectclient/dist/connectclient/index.html`);
+            Main.mainWindow.on('closed', Main.onClose);
         Main.mainWindow.once('ready-to-show', Main.onReadyToShow)
     }
 
     private static onReadyToShow(): void {
-        Main.mainWindow.setMenu(null);
+        // Main.mainWindow.setMenu(null);
         Main.mainWindow.show();
         Main.updater.checkForUpdates();
         Main.mainWindow.webContents.on('new-window', (event, url) => Main.onNewWindow(event, url));
@@ -58,6 +63,7 @@ export default class Main {
         if (Main.wsClient)
             Main.wsClient.disconnect();
 
+        Main.updater.abort();
         Main.mainWindow = null;
         Main.callWindow = null;
         Main.connectTray = null;

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <h4 id="header">A new version of Gamelet Connect is available</h4>
+    <div class="content">
+        <div id="dynamic-container"></div>
+    </div>
+    <p id="downloaded-msg">Update successfully downloaded.<br>Quit and install now?</p>
+    <div id="input-container">
+        <div id="progress-outer">
+            <div id="progress-value"></div>
+        </div>
+        <button class="btn" id="accept-btn">Download now</button>
+        <button class="btn" onclick="abort()" id="abort-btn">Later</button>
+    </div>
+</body>
+<script type="text/javascript" src="renderer.js" defer></script>
+
+</html>

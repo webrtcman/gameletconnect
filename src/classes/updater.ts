@@ -1,66 +1,77 @@
-const { autoUpdater } = require('electron-updater'); 
-import { dialog, Notification } from 'electron';
+// const { autoUpdater } = require('electron-updater'); 
+import { BrowserWindow, Notification } from 'electron';
+import { autoUpdater, UpdateInfo } from 'electron-updater'; //typescript import results in errors because of .d.ts in updater module
+import { updateWindowConfig } from '../electron_config/windowconfig';
+import Main from './main';
 
-// import { autoUpdater } from 'electron-updater'; //typescript import results in errors because of .d.ts in updater module
-
+/**
+ * Provides functionality for detecting, downloading & installing updates, 
+ * aswell as showing the necessary GUI for that to the user
+ */
 export class Updater {
-
-    constructor() {}
-
+    
+    updateWindow: BrowserWindow;
+    bShowDownloadedNotification: boolean;
+    constructor() {
+    }
+    
     public checkForUpdates(delay: number = 2000, bAutoDownload: boolean = false) {
         autoUpdater.autoDownload = bAutoDownload;
-
+        console.log('curr version:',autoUpdater.currentVersion);
         setTimeout(() => {
-
+            
             if(!bAutoDownload)
-                autoUpdater.on('update-available', () => this.showUpdateAvailableDialogue());
-
+            autoUpdater.on('update-available', (info) => {
+                this.onUpdateAvailable(info)
+                console.log(info);
+            });
+            
             try {
                 autoUpdater.checkForUpdates();
             } catch(error) {
                 console.log(error);
             }
-
+            
         }, delay);
     }
+    
+    private async onUpdateAvailable(info: UpdateInfo): Promise<void> {
+        this.updateWindow = new BrowserWindow(updateWindowConfig);
+        await this.updateWindow.loadFile(`${__dirname}/../../update_window/index.html`);
+        this.updateWindow.webContents.send('updater::patchnotes', info);
+    }
+    
+    public downloadUpdate(): void {
+        autoUpdater.on('download-progress', (data) => {
+            this.updateWindow.webContents.send('updater::downloadprogress', data);
+        })
+        autoUpdater.downloadUpdate();
+        autoUpdater.on('update-downloaded', () => this.onUpdateDownloaded());
+    }
+    
+    private async onUpdateDownloaded(): Promise<void> {
+        this.updateWindow.webContents.send('updater::downloadcomplete');
+        this.bShowDownloadedNotification = true;
+    }
+    public quitAndInstall(): void {
+        this.bShowDownloadedNotification = false;
+        autoUpdater.quitAndInstall(false, true);
+    }
+    public abort(): void {
+        if(!this.updateWindow)
+            return;
 
-    private async showUpdateAvailableDialogue(): Promise<void> {
-        const result = await dialog.showMessageBox({
-            type: 'info',
-            title: 'Update available',
-            message: 'A new version of Gamelet Connect is available. Do you want to download it now?',
-            buttons: ['Download now', 'Later'],
-            defaultId: 0
-        });
+        this.updateWindow.close();
+        this.updateWindow = null;
 
-        if(result.response === 0){
-            this.showDownloadNotification();
-            this.downloadUpdate();
-        }
+        if(this.bShowDownloadedNotification)
+            new Notification({
+                title: "Update delayed",
+                body: "The update will be installed the next time you close the app."
+            }).show();
     }
 
-    private async downloadUpdate(): Promise<void> {
-       autoUpdater.downloadUpdate();
-       autoUpdater.on('update-downloaded', () => this.showUpdateDownloadedDialogue());
-    }
-
-    private showDownloadNotification(): void {
-        new Notification( {
-            title: 'Gamelect Connect',
-            body: 'The update is being downloaded. You will be notified as soon as it is ready to install.',
-        }).show();
-    }
-
-    private async showUpdateDownloadedDialogue(): Promise<void> {
-        const result = await dialog.showMessageBox({
-            type: 'info',
-            title: 'Update downloaded',
-            message: 'The update has been downloaded successfully. \nDo you want to install it now? The application will be closed & restarted.',
-            buttons: ['Install now', 'Later'],
-            defaultId: 0
-        });
-
-        if(result.response === 0)
-            autoUpdater.quitAndInstall(false, true);
+    public getVersion(): void {
+        Main.mainWindow.webContents.send('client::version', autoUpdater.currentVersion.version);
     }
 }

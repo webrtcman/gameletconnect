@@ -2,7 +2,7 @@ import { InterCompService } from './inter-comp.service';
 import { ScreenCaptureService } from './screen-capture.service';
 import { RtcSettingsService } from './rtc-settings.service';
 import { StreamData } from './../classes/streamdata';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { WebsocketService } from './websocket.service';
 import * as mediasoupClient from 'mediasoup-client';
 import { MediaKind, RtpCapabilities } from 'mediasoup-client/lib/types';
@@ -17,7 +17,7 @@ import { MediaType } from 'src/app/classes/enums';
   providedIn: 'root'
 })
 
-export class MediasoupService {
+export class MediasoupService implements OnDestroy {
 
   clientId: string;
   device: mediasoupClient.Device;
@@ -56,12 +56,19 @@ export class MediasoupService {
     this.registerElectronEvents();
   }
 
+  ngOnDestroy() {
+  this.deviceChangeSubscription.unsubscribe();
+  this.audioSettingsChangeSubscription.unsubscribe();
+  }
+
   private registerRtcSettingsSubscriptions() {
     this.audioSettingsChangeSubscription = this.rtcSettingsService
       .onAudioSettingsChange()
       .subscribe(() => this.restartProducer(MediaType.audio));
 
-
+    this.deviceChangeSubscription = this.rtcSettingsService
+      .onDeviceChange()
+      .subscribe(mediaType => this.restartProducer(mediaType));
   }
 
   private registerElectronEvents() {
@@ -81,27 +88,15 @@ export class MediasoupService {
 
     //Iterate through each received producer and start consumation before notifying the component about a change
     this.websocketService.on('lobby_rtc::allProducers', async (event, data) => {
-      console.log('received producers', data);
-      if (data.producers)
-        for (const producer of data.producers) {
-          console.log('starting consumation')
-          if(producer.sourceId != this.interCompService.clientId)
-            await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
-        }
-
+     this.onAllProducers(data);
     });
 
     this.websocketService.on('lobby_rtc::newproducer', async (event, data) => {
-      const producer = data;
-      console.log('starting consumation')
-      if(producer.sourceId != this.interCompService.clientId)
-        await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
-
+      this.onNewProducer(data);
     });
 
     this.websocketService.on('lobby_rtc::consumerclosed', (event, data) => {
       this.removeConsumer(data.consumerId);
-
     });
   }
 
@@ -142,7 +137,8 @@ export class MediasoupService {
   }
 
   /**
-   * 
+   * Creates a medisaoup device that resembles the rtc capabilities of the computer
+   * @param routerRtpCapabilities
    */
   public async loadDevice(routerRtpCapabilities: RtpCapabilities): Promise<void | Error> {
     try {
@@ -153,10 +149,7 @@ export class MediasoupService {
       alert('Your Device is not supported. You cannot participate in Video or Audio communication.');
       return;
     }
-
-    await this.device.load({
-      routerRtpCapabilities
-    });
+    await this.device.load({routerRtpCapabilities});
   }
 
   public getDeviceRtpCapabilities(): RtpCapabilities | void {
@@ -449,8 +442,27 @@ export class MediasoupService {
   //#endregion
   //#region Consumer functionality
 
+  private async onNewProducer(data): Promise<void> {
+    const producer = data;
+    if(!producer)
+      return;
+
+    if(producer.sourceId != this.interCompService.clientId || this.getOwnVideoStreamEnabled(producer))
+      await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
+  }
+
+  private async onAllProducers(data): Promise<void> {
+    if(!data.producers)
+      return;
+
+    for (const producer of data.producers) {
+      if(producer.sourceId != this.interCompService.clientId || this.getOwnVideoStreamEnabled(producer))
+        await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
+    }
+  }
+
   private async consume(producerId: string, sourceId: string, mediaType: MediaType) {
-    const { consumer, stream, kind } = await this.getConsumeStream(producerId);
+    const { consumer, stream } = await this.getConsumeStream(producerId);
     const streamData = new StreamData(sourceId, consumer.id, stream);
 
     switch(mediaType){
@@ -506,4 +518,14 @@ export class MediasoupService {
     this.consumers.delete(consumerId);
   }
   //#endregion
+
+  private getOwnVideoStreamEnabled(producer): boolean {
+    if(this.rtcSettingsService.rtcPreferences.bShowOwnVideo && 
+      producer.mediaType !== MediaType.audio &&  
+      producer.mediaType !== MediaType.screenAudio
+    )
+      return true;
+
+    return false;
+  }
 }

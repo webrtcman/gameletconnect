@@ -1,6 +1,6 @@
 {
   "name": "gameletconnect",
-  "version": "0.6.4",
+  "version": "0.8.0",
   "description": "An electron client for the gamelet suite",
   "main": "transpiled/app.js",
   "scripts": {
@@ -18,12 +18,17 @@
     "ws": "^7.4.4"
   },
   "devDependencies": {
-    "electron": "^12.0.2",
+    "electron": "^12.0.4",
     "typescript": "^4.2.3"
   },
   "config": {},
   "build": {
-    "appId": "com.gamelet.connect",
+    "files": [
+      "!**private/*",
+      "!**connectclient/src/*",
+      "!**connectclient/e2e/*"
+    ],
+    "appId": "com.gamelet.gameletconnect",
     "copyright": "Johannes Franzen",
     "publish": "github",
     "mac": {
@@ -36,14 +41,19 @@
       ],
       "icon": "assets/icon.ico"
     },
+    "linux": {
+      "category": "Education",
+      "target": [
+        "deb",
+        "snap",
+        "rpm"
+      ]
+    },
     "nsis": {
       "installerIcon": "assets/icon.ico",
       "uninstallerIcon": "assets/icon.ico",
       "license": "LICENSE",
       "runAfterFinish": true
-    },
-    "linux": {
-      "category": "Education"
     }
   }
 }

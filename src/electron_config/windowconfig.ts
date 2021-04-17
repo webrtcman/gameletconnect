@@ -16,3 +16,15 @@ const path = require('path');
         //frame: false,
         //transparent: true,
 }
+
+export const updateWindowConfig: BrowserWindowConstructorOptions = {
+    width: 400,
+    height: 450,
+    resizable: false,
+    fullscreenable: false,
+    frame: false,
+    webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false
+    }
+}

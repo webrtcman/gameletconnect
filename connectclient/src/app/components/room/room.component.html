@@ -6,7 +6,7 @@
                 *ngIf="user.screenStream"
                 class="video-frame"
                 [id]="user.id"
-                [ngStyle]="{'width.px': calculateSize(false, true), 'height.px': calculateSize(false, false)}">
+                [ngStyle]="{'width.px': calculateSize(false, true)}">
                 <video autoplay style="width: 100%; height: 100%;" [srcObject]="user.screenStream"></video>
                 <div class="video-overlay">
                     <!-- <audio *ngIf="user.audioStream" autoplay [srcObject]="user.audioStream"></audio> -->
@@ -18,16 +18,20 @@
     <div class="videoarea" [ngClass]="{'area-small': sharedScreens > 0}" #videoarea>
         <div
             @ellipticslide
-            *ngFor="let user of usersInRoom"
+            *ngFor="let user of usersInRoom; let i = index"
             class="video-frame"
             [id]="user.id"
-            [ngStyle]="{'width.px': calculateSize(true, true), 'height.px': calculateSize(true, false)}"
+            [ngStyle]="{'width.px': calculateSize(true, true)}"
         >
-            <video *ngIf="user.camStream" autoplay style="width: 100%; height: 100%;"
-                [srcObject]="user.camStream"></video>
+            <video *ngIf="user.camStream" autoplay style="width: 100%; height: 100%;" [srcObject]="user.camStream"></video>
             <div class="video-overlay">
-                <audio *ngIf="user.audioStream" autoplay [srcObject]="user.audioStream"></audio>
-                {{ user.name }}
+                <ng-container *ngIf="user.audioStream">
+                    <audio [id]="user.id + '-'+i" autoplay [srcObject]="user.audioStream"></audio>
+                    <i class="fa fa-volume-up volume"></i>
+                    <input class="volume-slider" type="range" min="0" max="100" value="100" (change)="onVolumeChange($event, user.id + '-'+i)">
+                </ng-container>
+                <i *ngIf="!user.audioStream && !user.bIsThisClient" class="fa fa-lg fa-microphone-slash muted"></i>
+                <span>{{ user.name }}</span>
             </div>
         </div>
     </div>

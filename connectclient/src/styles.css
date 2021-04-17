@@ -335,6 +335,8 @@ iframe {
 .control-switch input:checked ~ i::before {
   background: #0f0;
   box-shadow: 0 0 0.3vw #0f0,
+              0 0 0.4vw #0f0,
+              0 0 0.5vw #0f0,
               0 0 0.6vw #0f0,
               0 0 0.9vw #0f0,
               0 0 1.2vw #0f0,

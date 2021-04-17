@@ -29,10 +29,7 @@ export class WebSocketClient {
             // if(err.message == 'Opening handshake has timed out' || err.code == 'ECONNREFUSED')
                 
             this.currWindow.webContents.send('server::unreachable');
-            
-           
-
-        })
+        });
         //#region server events (events with, connection logic, multiple lobbies or lobby switching involved)
         this.ws.bind('server::register', (data) => {
             console.log(data.id);

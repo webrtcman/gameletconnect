@@ -1,3 +1,4 @@
+import { RtcSettingsService } from 'src/app/services/rtc-settings.service';
 import { RtcButtonStatus } from 'src/app/classes/buttonStatus';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { MediasoupService } from 'src/app/services/mediasoup.service';
@@ -23,7 +24,6 @@ export class RoomComponent implements OnInit, OnDestroy {
   bChatDocked: boolean = false;
   bInRoom: boolean = false;
   sharedScreens: number = 0;
-  
 
   lobbyChangeSubscription: Subscription;
   rtcButtonToggleSubscription: Subscription;
@@ -31,14 +31,14 @@ export class RoomComponent implements OnInit, OnDestroy {
   rtcConsumerRemovedSubscription: Subscription;
   screenCaptureSelectSubscription: Subscription;
 
-
   constructor(
     private websocketService: WebsocketService,
     private interCompService: InterCompService,
     private mediasoupService: MediasoupService,
+    private rtcSettingsService: RtcSettingsService,
     private changeDetectorRef: ChangeDetectorRef
-  ) {
-
+  ) { 
+    this.usersInRoom = [];
   }
 
   ngOnInit(): void {
@@ -55,7 +55,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.screenCaptureSelectSubscription.unsubscribe();
   }
 
-  registerInterCompSubscriptions() {
+  private registerInterCompSubscriptions(): void {
     this.lobbyChangeSubscription = this.interCompService
       .onLobbyChange()
       .subscribe((lobbyType) => {
@@ -74,7 +74,7 @@ export class RoomComponent implements OnInit, OnDestroy {
       .subscribe(() => this.startScreenCapture());
   }
 
-  registerRtcSubscriptions() {
+  private registerRtcSubscriptions(): void {
     this.rtcConsumerAddedSubscription = this.mediasoupService
       .onConsumerAdded()
       .subscribe(consumer => this.mapNewConsumer(consumer));
@@ -84,51 +84,12 @@ export class RoomComponent implements OnInit, OnDestroy {
       .subscribe(consumer => this.unmapRemovedConsumer(consumer))
   }
 
-  playAllVids() {
-    let vids = document.getElementsByTagName('video');
-    setTimeout(()=> {
-      if(vids){
+  private registerWebsocketEvents(): void {
+    this.websocketService.on('lobby::connectedusers', (event, data: User[]) => this.onConnectedUsers(data));
 
-        for(let i = 0; i < vids.length; i++) {
-          vids[i].play();
-        }
-        this.interCompService.requestChangeDetection();
-      }
-    }, 1000)
-  }
+    this.websocketService.on('lobby::userjoined', (event, data: User) => this.onUserJoined(data));
 
-  registerWebsocketEvents(): void {
-    this.websocketService.on('lobby::connectedusers', (event, data) => {
-      console.log('joined lobby', data);
-      this.usersInRoom = [];
-      data.forEach(user => {
-        if(user.id !== this.interCompService.clientId)
-          this.usersInRoom.push(user);
-      });
-      this.changeDetectorRef.detectChanges();
-    });
-
-    this.websocketService.on('lobby::userjoined', (event, data) => {
-
-      if (data.id === this.interCompService.clientId)
-        return;
-
-      this.usersInRoom.push(data);
-
-      this.changeDetectorRef.detectChanges();
-    });
-
-    this.websocketService.on('lobby::userleft', (event, data) => {
-      console.log(data);
-
-      let user = this.findUser(data.id);
-
-      if (!user)
-        return;
-
-      this.usersInRoom.splice(this.usersInRoom.indexOf(user), 1);
-      this.changeDetectorRef.detectChanges();
-    });
+    this.websocketService.on('lobby::userleft', (event, data: User) => this.onUserLeft(data));
   }
 
   /**
@@ -137,6 +98,63 @@ export class RoomComponent implements OnInit, OnDestroy {
    */
   private findUser(userId: string): User {
     return this.usersInRoom.find(user => user.id === userId);
+  }
+
+  /**
+   * Adds a representation of this client to the room
+   */
+  private displayOwnClient(): void {
+    let client = new User();
+    client.name = localStorage.getItem('username') || '';
+    client.id = this.interCompService.clientId;
+    client.bIsThisClient = true;
+    this.usersInRoom.push(client);
+  }
+
+  /**
+   * Displays all users present in the room
+   * @param users 
+   */
+  private onConnectedUsers(users: User[]): void {
+    this.usersInRoom = [];
+
+      if (this.rtcSettingsService.rtcPreferences.bShowOwnVideo)
+        this.displayOwnClient();
+
+    users.forEach(user => {
+        if (user.id !== this.interCompService.clientId)
+          this.usersInRoom.push(user);
+      });
+      this.changeDetectorRef.detectChanges();
+  }
+
+  /**
+   * Adds a new user to the room
+   * @param data The new user 
+   */
+  private onUserJoined(data: User): void {
+    let user = this.findUser(data.id);
+    if (user)
+      return;
+
+    if (data.id === this.interCompService.clientId)
+      return;
+
+    this.usersInRoom.push(data);
+    this.changeDetectorRef.detectChanges();
+  }
+
+  /**
+   * Removes the passed in user from the room
+   * @param data 
+   */
+  private onUserLeft(data: User): void {
+    let user = this.findUser(data.id);
+      if (!user)
+        return;
+
+      this.usersInRoom.splice(this.usersInRoom.indexOf(user), 1);
+      this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -160,24 +178,17 @@ export class RoomComponent implements OnInit, OnDestroy {
       case MediaType.screen:
         user.screenStream = consumer.stream;
         break;
+      case MediaType.screenAudio:
+        user.screenAudioStream = consumer.stream;
       default:
         break;
     }
     this.checkForScreenStreams();
-    this.playAllVids();
     this.interCompService.requestChangeDetection();
   }
 
-  checkForScreenStreams(): void {
-    this.sharedScreens = 0;
-    this.usersInRoom.forEach(user => {
-      if(user.screenStream){
-        this.sharedScreens++;
-      }
-    })
-  }
   /**
-   * Removes a removed consumer from the user object that produced it
+   * Deletes a removed consumer from the user representation that produced it
    * @param consumer 
    */
   private unmapRemovedConsumer(consumer): void {
@@ -197,6 +208,8 @@ export class RoomComponent implements OnInit, OnDestroy {
       case MediaType.screen:
         user.screenStream = null;
         break;
+      case MediaType.screenAudio:
+        user.screenAudioStream = null;
       default:
         break;
     }
@@ -204,6 +217,34 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.interCompService.requestChangeDetection();
   }
 
+  /**
+   * Helper method that counts the existing screen streams,
+   * so their size can be calculated correctly
+   */
+  private checkForScreenStreams(): void {
+    this.sharedScreens = 0;
+    this.usersInRoom.forEach(user => {
+      if (user.screenStream) {
+        this.sharedScreens++;
+      }
+    })
+  }
+
+  private onEnterRoom() {
+    this.bInRoom = true;
+    this.websocketService.getUsersInLobby();
+    setTimeout(() => this.mediasoupService.startRtc(this.interCompService.clientId), 500);
+    this.changeDetectorRef.detectChanges();
+  }
+
+  private onLeaveRoom() {
+    this.bInRoom = false;
+    this.mediasoupService.stopRtc();
+    this.usersInRoom = [];
+    this.changeDetectorRef.detectChanges();
+  }
+
+  //#region rtc interaction
   /**
    * Handles the logic that happens after a click on the buttons in rtc-controls component
    * @param btnStatus 
@@ -225,20 +266,6 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
   }
 
-  onEnterRoom() {
-    this.bInRoom = true;
-    this.websocketService.getUsersInLobby();
-    setTimeout(() => this.mediasoupService.startRtc(this.interCompService.clientId), 500);
-    this.changeDetectorRef.detectChanges();
-  }
-
-  onLeaveRoom() {
-    this.bInRoom = false;
-    this.mediasoupService.stopRtc();
-    this.usersInRoom = [];
-    this.changeDetectorRef.detectChanges();
-  }
-
   private toggleMicrophone(bActive: boolean): void {
     if (this.bInRoom && bActive)
       this.mediasoupService.produceAudio();
@@ -250,6 +277,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   private toggleCamera(bActive: boolean): void {
     if (this.bInRoom && bActive)
       this.mediasoupService.produceVideo();
+
     else if (this.bInRoom && !bActive)
       this.mediasoupService.closeProducer(MediaType.video);
   }
@@ -267,6 +295,18 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.mediasoupService.produceScreenCapture();
   }
 
+  /**
+   * Adjusts the volume of a user
+   * @param event 
+   * @param userId 
+   * @todo Achieve this without direct DOM Manipulation, this is dirty!
+   */
+  private onVolumeChange(event, userId): void {
+    let audio = document.getElementById(userId) as HTMLAudioElement;
+    audio.volume = event.target.value / 100;
+  }
+
+  //#endregion
   //#region Room video size calculations
   area(increment, count, width, height, margin = 10) {
     let i = 0;
@@ -297,7 +337,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     let roomHeight: number;
     let participantCount: number;
 
-    if(bCamArea) {
+    if (bCamArea) {
       roomWidth = this.videoarea.nativeElement.offsetWidth - margin * 2;
       roomHeight = this.videoarea.nativeElement.offsetHeight - margin * 2;
       participantCount = this.usersInRoom.length;
@@ -317,14 +357,12 @@ export class RoomComponent implements OnInit, OnDestroy {
       }
     }
     outWidth = max - margin * 2;
-    console.log("recalc w:", outWidth)
 
     //console.log('perf: ', performance.now() - perf);
     if (bCalculateWidth)
       return outWidth;
 
     outHeight = outWidth * 0.5625;//16:9 aspect ratio
-    console.log("recalc h:", outHeight)
     return Math.round(outHeight);
   }
   //#endregion

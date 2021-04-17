@@ -1,3 +1,5 @@
+import { WebsocketService } from 'src/app/services/websocket.service';
+import { RtcPreferences } from 'src/app/classes/rtcpreferences';
 import { MediaType } from './../classes/enums';
 import { WindowType } from 'src/app/classes/enums';
 import { PopupConfig } from 'src/app/classes/popupconfig';
@@ -25,6 +27,7 @@ export class RtcSettingsService {
   selectedAudioOutDeviceId: string;
 
   microphoneSettings: MicrophoneSettings;
+  rtcPreferences: RtcPreferences;
 
   devicesChangedSubject: Subject<MediaType>;
   audioSettingsChangedSubject: Subject<void>;
@@ -35,11 +38,14 @@ export class RtcSettingsService {
     bCamera: false
   }
 
-  constructor(private interCompService: InterCompService) {
-    this.microphoneSettings = new MicrophoneSettings();
+  constructor(
+    private interCompService: InterCompService,
+    private websocketService: WebsocketService
+  ) {
     this.devicesChangedSubject = new Subject<MediaType>();
     this.audioSettingsChangedSubject = new Subject<void>();
 
+    this.loadSettings();
     this.loadMediaDevices();
     navigator.mediaDevices.ondevicechange = () => this.loadMediaDevices();
   }
@@ -48,18 +54,50 @@ export class RtcSettingsService {
     return this.devicesChangedSubject.asObservable();
   }
   public onAudioSettingsChange(): Observable<void> {
+    this.saveMicrophoneSettings();
     return this.audioSettingsChangedSubject.asObservable();
+  }
+
+  public saveRtcPreferences(): void {
+    let preferences = JSON.stringify(this.rtcPreferences);
+    localStorage.setItem('rtcPreferences', preferences);
   }
 
   public announceAudioSettingsChange(): void {
     this.audioSettingsChangedSubject.next();
-    console.log('service:', this.microphoneSettings);
   }
+
+  private saveMicrophoneSettings(): void {
+    let micSettings = JSON.stringify(this.microphoneSettings);
+    localStorage.setItem('microphoneSettings', micSettings);
+  }
+
 
   public announceDeviceChange(type: MediaType): void {
     this.devicesChangedSubject.next(type);
   }
 
+  /**
+   * Tries to get the saved settings for microphone & user preferences
+   * from localstorage
+   */
+  private loadSettings() {
+    let preferences = localStorage.getItem('rtcPreferences');
+    let micSettings = localStorage.getItem('microphoneSettings');
+    if(preferences)
+      this.rtcPreferences = JSON.parse(preferences);
+    else
+      this.rtcPreferences = new RtcPreferences();
+
+    if(micSettings)
+      this.microphoneSettings = JSON.parse(micSettings);
+    else
+      this.microphoneSettings = new MicrophoneSettings();
+  }
+
+  /**
+   * Gets all available media devices of this computer and categorizes them
+   */
   private async loadMediaDevices() {
     const devices = await navigator.mediaDevices.enumerateDevices();
     this.audioInDevices = [];
@@ -204,7 +242,10 @@ export class RtcSettingsService {
     };
     this.speechEvents = hark(stream, options);
 
-    this.speechEvents.on('speaking', () => onSpeakCb());
+    this.speechEvents.on('speaking', () => {
+      this.websocketService.sendClientSpeaking();
+      onSpeakCb();
+    });
     this.speechEvents.on('stopped_speaking', () => onStopSpeakCb());
   }
 
