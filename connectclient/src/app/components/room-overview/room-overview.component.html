@@ -2,9 +2,12 @@
     <h1 class="fadeable" [ngClass]="{fadeout: bInRoom}">Available Rooms:</h1>
     <h2 *ngIf="availableRooms.length === 0 && !bInRoom"><small>None</small></h2>
     <div @ellipticslide class="room-tile joinable" data-text="Join" *ngFor="let room of availableRooms"
-        (click)="onJoinRoomClick(room.id)">
+        (click)="onJoinRoomClick(room.id, room.bRoomPassword)">
         <h4 class="room-label">
-            <h3>{{ room.name }}</h3>
+            <h3>
+                {{ room.name }}
+                <i *ngIf="room.bRoomPassword" class="fas fa-lock fa-lg"></i>
+            </h3>
             <h3>{{room.connectedUsers}}/{{room.maxUsers}}&nbsp;
                 <i style="vertical-align: middle; padding-bottom: 3px;" class="fas fa-lg fa-user"></i>
             </h3>

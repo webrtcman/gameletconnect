@@ -1,6 +1,6 @@
 {
   "name": "gameletconnect",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "description": "An electron client for the gamelet suite",
   "main": "transpiled/app.js",
   "scripts": {

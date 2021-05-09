@@ -1,7 +1,5 @@
 import { ChatMessage } from 'src/app/classes/chatmessage';
 import { Room } from '../classes/room';
-//Service used for communication between the different components required for RTC
-// InterComp <=> InterComm :P
 import { Subject, Observable } from 'rxjs';
 import { User } from 'src/app/classes/user';
 import { Injectable } from '@angular/core';
@@ -13,9 +11,14 @@ import { RtcButtonStatus } from '../classes/buttonStatus';
 @Injectable({
   providedIn: 'root'
 })
+/**
+* Service used for communication between the different components required for RTC
+* InterComp <=> InterComm :P
+*/
 export class InterCompService {
   
-  public clientId = "?";
+  private clientId = "?";
+  private lobbyToJoinId: string;
   public usersInRoom: User[];
   public bInRoom: boolean;
   
@@ -36,8 +39,8 @@ export class InterCompService {
   
   
   constructor() {
+
     this.usersInRoom = [];
-    
     this.changeDetectionSubject = new Subject<void>();
     this.authenticationSubject = new Subject<void>();
     this.lobbyChangeSubject = new Subject<LobbyType>();
@@ -57,7 +60,14 @@ export class InterCompService {
   getClientId(): string {
     return this.clientId;
   }
+
+  setRoomToJoinId(id: string) {
+    this.lobbyToJoinId = id;
+  }
   
+  getRoomToJoinId(): string {
+    return this.lobbyToJoinId;
+  }
   announceAuthentication(): void {
     this.authenticationSubject.next();
   }

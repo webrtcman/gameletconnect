@@ -20,7 +20,6 @@ export class GeneralSettingsComponent implements OnInit, OnDestroy {
   lobbyChangeSubscription: Subscription;
   onShowWindowSubscription: Subscription;
 
-  bDeviceWarning: boolean;
   bInRoom: boolean;
 
   rtcPreferences: RtcPreferences;
@@ -79,7 +78,8 @@ export class GeneralSettingsComponent implements OnInit, OnDestroy {
   }
 
   onDeviceWarningCheck(): void {
-    this.bDeviceWarning = !this.bDeviceWarning;
+    this.rtcPreferences.bCamMissingWarning = !this.rtcPreferences.bCamMissingWarning;
+    this.rtcSettingsService.saveRtcPreferences();
   }
 
   onNameSubmit() {

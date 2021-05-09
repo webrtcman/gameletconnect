@@ -38,6 +38,7 @@ import { AppearanceSettingsComponent } from './components/appearance-settings/ap
 import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
 import { ColorOrbBackgroundComponent } from './color-orb-background/color-orb-background.component';
 import { LinkifyPipe } from './pipes/linkify.pipe';
+import { RoomPasswordFormComponent } from './components/room-password-form/room-password-form.component';
 
 
 @NgModule({
@@ -67,6 +68,7 @@ import { LinkifyPipe } from './pipes/linkify.pipe';
     EnumToArrayPipe,
     ColorOrbBackgroundComponent,
     LinkifyPipe,
+    RoomPasswordFormComponent,
   ],
   imports: [
     BrowserModule,

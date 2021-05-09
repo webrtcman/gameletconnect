@@ -61,15 +61,14 @@ export class WebSocketClient {
         this.ws.bind('server::availablelobbies', (data) => {
             this.currWindow.webContents.send('server::availablelobbies', data);
         });
-        this.ws.bind('server::notfound', () => {
-            //lobby user tried to join does not exist (anymore)
-            //TODO Show feedback
-            this.sendGetLobbies();
+        this.ws.bind('server::lobbynotfound', () => {
+            this.currWindow.webContents.send('server::lobbynotfound');
         });
         this.ws.bind('server::lobbyfull', () => {
-            //loby user tried to join is full
-            //TODO Show feedback
-            this.sendGetLobbies();
+            this.currWindow.webContents.send('server::lobbyfull');
+        });
+        this.ws.bind('server::lobbyaccessdenied', () => {
+            this.currWindow.webContents.send('server::lobbyaccessdenied');
         })
         //#endregion
         //#region lobby specific events
@@ -173,8 +172,8 @@ export class WebSocketClient {
         this.ws.emit('client::createlobby', data);
     }
 
-    joinLobby(lobbyId: string) {
-        this.ws.emit('client::joinlobby', { lobbyId });
+    joinLobby(data) {
+        this.ws.emit('client::joinlobby', data);
     }
 
     sendGetLobbyUsers(): void {

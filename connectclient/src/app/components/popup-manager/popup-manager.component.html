@@ -18,6 +18,10 @@
     <app-screen-capture-picker [windowRef]="screenCapture"></app-screen-capture-picker>
 </app-popup>
 
+<app-popup #roomPassword [windowType]="'info'" [title]="'Password needed'">
+    <app-room-password-form [windowRef]="roomPassword"></app-room-password-form>
+</app-popup>
+
 <app-popup 
     #custom 
     [windowType]="customConfig?.windowType" 

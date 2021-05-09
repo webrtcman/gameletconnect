@@ -33,8 +33,10 @@ export class MediasoupService implements OnDestroy {
 
   existingProducers: Map<MediaType, string>;
 
+  private transportsReadySubject: Subject<void>;
   private consumerAddedSubject: Subject<StreamData>;
   private consumerRemovedSubject: Subject<{ consumer: Consumer, sourceId: string, mediaType: MediaType }>;
+
 
   deviceChangeSubscription: Subscription;
   audioSettingsChangeSubscription: Subscription;
@@ -49,6 +51,7 @@ export class MediasoupService implements OnDestroy {
     this.consumers = new Map<string, { consumer: Consumer, sourceId: string, mediaType: MediaType }>();
 
     this.existingProducers = new Map<MediaType, string>();
+    this.transportsReadySubject = new Subject<void>();
     this.consumerAddedSubject = new Subject<StreamData>();
     this.consumerRemovedSubject = new Subject<{ consumer: Consumer, sourceId: string, mediaType: MediaType }>();
 
@@ -64,7 +67,7 @@ export class MediasoupService implements OnDestroy {
   private registerRtcSettingsSubscriptions() {
     this.audioSettingsChangeSubscription = this.rtcSettingsService
       .onAudioSettingsChange()
-      .subscribe(() => this.restartProducer(MediaType.audio));
+      .subscribe(() => this.restartProducer(MediaType.Audio));
 
     this.deviceChangeSubscription = this.rtcSettingsService
       .onDeviceChange()
@@ -98,6 +101,10 @@ export class MediasoupService implements OnDestroy {
     this.websocketService.on('lobby_rtc::consumerclosed', (event, data) => {
       this.removeConsumer(data.consumerId);
     });
+  }
+
+  public onTransportsReady(): Observable<void> {
+    return this.transportsReadySubject.asObservable();
   }
 
   /**
@@ -182,6 +189,7 @@ export class MediasoupService implements OnDestroy {
     this.consumerTransport = await device.createRecvTransport(params);
     this.registerConsumerTransportEvents();
     this.websocketService.requestProducers();
+    this.transportsReadySubject.next();
   }
 
   /**
@@ -205,9 +213,9 @@ export class MediasoupService implements OnDestroy {
         this.websocketService.on('lobby_rtc::clientProducerId', (event, data) => {
           callback({ id: data.producerId });
 
-          if(data.mediaType == MediaType.screen)
+          if(data.mediaType == MediaType.Screen)
             this.bStartingScreenVideo = false;
-          else if(data.mediaType == MediaType.screenAudio)
+          else if(data.mediaType == MediaType.ScreenAudio)
             this.bStartingScreenAudio = false;
         });
       }
@@ -233,14 +241,14 @@ export class MediasoupService implements OnDestroy {
   mediaKindToType(kind: MediaKind): MediaType {
     if (!this.bStartingScreenVideo && !this.bStartingScreenAudio) {
       if (kind === 'video')
-        return MediaType.video;
+        return MediaType.Video;
       else
-        return MediaType.audio;
+        return MediaType.Audio;
     }
     if (kind === 'video')
-      return MediaType.screen;
+      return MediaType.Screen;
     else
-      return MediaType.screenAudio;
+      return MediaType.ScreenAudio;
   }
 
   /**
@@ -278,7 +286,7 @@ export class MediasoupService implements OnDestroy {
       console.error('cannot produce video');
       return;
     }
-    if (this.existingProducers.has(MediaType.video)) {
+    if (this.existingProducers.has(MediaType.Video)) {
       console.error('video prod exists');
       return;
     }
@@ -308,12 +316,12 @@ export class MediasoupService implements OnDestroy {
     console.log(producer);
     console.log("======");
     this.producers.set(producer.id, producer);
-    this.existingProducers.set(MediaType.video, producer.id);
+    this.existingProducers.set(MediaType.Video, producer.id);
 
   }
 
   public async produceAudio() {
-    if (this.existingProducers.has(MediaType.audio))
+    if (this.existingProducers.has(MediaType.Audio))
       return;
 
 
@@ -334,11 +342,11 @@ export class MediasoupService implements OnDestroy {
     const producer = await this.producerTransport.produce(params);
 
     this.producers.set(producer.id, producer);
-    this.existingProducers.set(MediaType.audio, producer.id);
+    this.existingProducers.set(MediaType.Audio, producer.id);
 
     this.rtcSettingsService.startSpeechDetection(
-      () => this.resumeProducer(MediaType.audio),
-      () => this.pauseProducer(MediaType.audio)
+      () => this.resumeProducer(MediaType.Audio),
+      () => this.pauseProducer(MediaType.Audio)
     );
   }
 
@@ -347,8 +355,8 @@ export class MediasoupService implements OnDestroy {
       console.error('cannot produce video');
       return;
     }
-    if (this.existingProducers.has(MediaType.screen))
-      return this.restartProducer(MediaType.screen);
+    if (this.existingProducers.has(MediaType.Screen))
+      return this.restartProducer(MediaType.Screen);
 
 
     const { stream, bAudio } = await this.screenCaptureService.startCapture();
@@ -359,7 +367,7 @@ export class MediasoupService implements OnDestroy {
     const screenProducer = await this.producerTransport.produce(screenParams);
 
     this.producers.set(screenProducer.id, screenProducer);
-    this.existingProducers.set(MediaType.screen, screenProducer.id);
+    this.existingProducers.set(MediaType.Screen, screenProducer.id);
 
     if (!bAudio)
       return;
@@ -372,7 +380,7 @@ export class MediasoupService implements OnDestroy {
     const screenAudioProducer = await this.producerTransport.produce(audioParams);
 
     this.producers.set(screenAudioProducer.id, screenAudioProducer);
-    this.existingProducers.set(MediaType.screenAudio, screenAudioProducer.id);
+    this.existingProducers.set(MediaType.ScreenAudio, screenAudioProducer.id);
 
   }
 
@@ -385,7 +393,7 @@ export class MediasoupService implements OnDestroy {
     if (!this.producers.has(producerId))
       return;
 
-    if (type === MediaType.audio)
+    if (type === MediaType.Audio)
       this.rtcSettingsService.stopSpeechDetection();
 
     this.websocketService.closeProducer(producerId);
@@ -422,15 +430,15 @@ export class MediasoupService implements OnDestroy {
     console.log('closed old producer');
     await setTimeout(() => { }, 100);
     switch (type) {
-      case MediaType.audio:
+      case MediaType.Audio:
         this.produceAudio();
         break;
-      case MediaType.video:
+      case MediaType.Video:
         this.produceVideo();
         break;
-      case MediaType.screen:
+      case MediaType.Screen:
       //intended fallthrough
-      case MediaType.screenAudio:
+      case MediaType.ScreenAudio:
         this.produceScreenCapture();
         break;
       default:
@@ -447,7 +455,7 @@ export class MediasoupService implements OnDestroy {
     if(!producer)
       return;
 
-    if(producer.sourceId != this.interCompService.clientId || this.getOwnVideoStreamEnabled(producer))
+    if(producer.sourceId != this.interCompService.getClientId() || this.getOwnVideoStreamEnabled(producer))
       await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
   }
 
@@ -456,7 +464,7 @@ export class MediasoupService implements OnDestroy {
       return;
 
     for (const producer of data.producers) {
-      if(producer.sourceId != this.interCompService.clientId || this.getOwnVideoStreamEnabled(producer))
+      if(producer.sourceId != this.interCompService.getClientId() || this.getOwnVideoStreamEnabled(producer))
         await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
     }
   }
@@ -466,14 +474,14 @@ export class MediasoupService implements OnDestroy {
     const streamData = new StreamData(sourceId, consumer.id, stream);
 
     switch(mediaType){
-      case MediaType.video:
-        streamData.streamType = MediaType.video;
+      case MediaType.Video:
+        streamData.streamType = MediaType.Video;
         break;
-      case MediaType.audio:
-        streamData.streamType = MediaType.audio;
+      case MediaType.Audio:
+        streamData.streamType = MediaType.Audio;
         break;
-      case MediaType.screen:
-        streamData.streamType = MediaType.screen;
+      case MediaType.Screen:
+        streamData.streamType = MediaType.Screen;
         break;
       default:
         break;
@@ -521,8 +529,8 @@ export class MediasoupService implements OnDestroy {
 
   private getOwnVideoStreamEnabled(producer): boolean {
     if(this.rtcSettingsService.rtcPreferences.bShowOwnVideo && 
-      producer.mediaType !== MediaType.audio &&  
-      producer.mediaType !== MediaType.screenAudio
+      producer.mediaType !== MediaType.Audio &&  
+      producer.mediaType !== MediaType.ScreenAudio
     )
       return true;
 

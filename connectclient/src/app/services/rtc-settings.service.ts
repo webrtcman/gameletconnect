@@ -15,7 +15,6 @@ import hark from 'hark';
 export class RtcSettingsService {
 
   bDevicesLoaded: boolean = false;
-  bVideoMissingWarning: boolean = true;
   speechEvents: hark.Harker;
 
   audioInDevices: MediaDeviceInfo[];
@@ -36,7 +35,7 @@ export class RtcSettingsService {
     bAudioIn: false,
     bAudioOut: false,
     bCamera: false
-  }
+  };
 
   constructor(
     private interCompService: InterCompService,
@@ -185,7 +184,7 @@ export class RtcSettingsService {
   private showErrorIfMissingDevices(): void {
     if (!this.missingDevices.bAudioIn && !this.missingDevices.bAudioOut && !this.missingDevices.bCamera)
       return;
-    if(!this.missingDevices.bAudioIn && !this.missingDevices.bAudioOut && !this.bVideoMissingWarning)
+    if(!this.missingDevices.bAudioIn && !this.missingDevices.bAudioOut && !this.rtcPreferences.bCamMissingWarning)
       return;
 
     let message = '';

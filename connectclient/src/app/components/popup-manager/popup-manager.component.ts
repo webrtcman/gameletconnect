@@ -18,6 +18,7 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('settings') settingsPopup: PopupWindowComponent;
   @ViewChild('roomCreator') roomCreatorPopup: PopupWindowComponent;
   @ViewChild('screenCapture') screenCapturePopup: PopupWindowComponent;
+  @ViewChild('roomPassword') roomPasswordPopup: PopupWindowComponent;
   @ViewChild('custom') customPopup: PopupWindowComponent;
 
   private popupRequestSubscription: Subscription;
@@ -58,6 +59,7 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.settingsPopup.hideWindow();
     this.roomCreatorPopup.hideWindow();
     this.screenCapturePopup.hideWindow();
+    this.roomPasswordPopup.hideWindow();
     this.customPopup.hideWindow();
   }
 
@@ -96,6 +98,9 @@ export class PopupManagerComponent implements OnInit, AfterViewInit, OnDestroy {
       case(PopupTemplate.settingsMedia):
         this.activeSettingsTab = SettingsTab.Media;
         this.settingsPopup.showWindow();
+      break;
+      case(PopupTemplate.roomPasswordForm):
+        this.roomPasswordPopup.showWindow();
       break;
     }
     this.changeDetectorRef.detectChanges();

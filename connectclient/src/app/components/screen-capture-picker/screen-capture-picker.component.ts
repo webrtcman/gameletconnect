@@ -20,7 +20,7 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
   screenSources: DesktopCapturerSource[];
   windowSources: DesktopCapturerSource[];
   
-  bShareAudio: boolean = true;
+  bShareAudio: boolean = false;
   bLoading: boolean = true;
 
 

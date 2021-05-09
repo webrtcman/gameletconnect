@@ -3,7 +3,7 @@ export class User {
     name: string;
     bIsOwner: boolean;
     bIsSpeaking: boolean;
-    bIsThisClient: boolean = false;
+    bIsThisClient: boolean;
 
     camStream: MediaStream;
     screenStream: MediaStream;

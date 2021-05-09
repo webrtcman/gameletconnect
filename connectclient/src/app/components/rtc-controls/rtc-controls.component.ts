@@ -1,3 +1,4 @@
+import { RtcSettingsService } from 'src/app/services/rtc-settings.service';
 import { Subscription } from 'rxjs';
 import { Buttons, LobbyType, PopupTemplate } from './../../classes/enums';
 import { InterCompService } from '../../services/inter-comp.service';
@@ -29,6 +30,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
 
   constructor(
     private interCompService: InterCompService,
+    private rtcSettingsService: RtcSettingsService,
     private changeDetectorRef: ChangeDetectorRef
     ) { 
     this.chatSound = new Audio('./assets/chatmsg.mp3');
@@ -44,8 +46,8 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
         else {
           this.bInRoom = false;
           this.btnStates = {
-            bMicroActive: false,
-            bCamActive: false,
+            bMicroActive: this.rtcSettingsService.rtcPreferences.bMicActive,
+            bCamActive: this.rtcSettingsService.rtcPreferences.bCamActive,
             bScreenSharing: false,
             bChatOpen: false
           }
@@ -53,6 +55,9 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
 
         this.changeDetectorRef.detectChanges();
       });
+
+      this.btnStates.bCamActive = this.rtcSettingsService.rtcPreferences.bCamActive;
+      this.btnStates.bMicroActive = this.rtcSettingsService.rtcPreferences.bMicActive;
 
       this.chatUpdateSubscription = this.interCompService
         .onChatUpdate()

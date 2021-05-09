@@ -40,8 +40,8 @@ export class IpcReceiver {
             this.wsClient.sendGetLobbies();
         })
 
-        ipcMain.on('client::joinlobby', (event, lobbyId) => {
-            this.wsClient.joinLobby(lobbyId);
+        ipcMain.on('client::joinlobby', (event, data) => {
+            this.wsClient.joinLobby(data);
         });
         ipcMain.on('client::createlobby', (event, config) => {
             this.wsClient.createLobby(config);

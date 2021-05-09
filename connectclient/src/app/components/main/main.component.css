@@ -10,6 +10,12 @@
   padding: 0;
   margin: 0;
 }
+
+.embedded-content {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
 .main-container::-webkit-scrollbar {
   display: none;
 }

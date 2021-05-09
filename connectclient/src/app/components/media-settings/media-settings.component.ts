@@ -101,7 +101,7 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
 
   public onAudioInSelect(): void {
     this.rtcSettingsService.selectedAudioInDeviceId = this.selectedAudioInDeviceId;
-    this.rtcSettingsService.announceDeviceChange(MediaType.audio);
+    this.rtcSettingsService.announceDeviceChange(MediaType.Audio);
     localStorage.setItem('audioInDevice', this.selectedAudioInDeviceId);
   }
 

@@ -241,26 +241,26 @@ export class RtcClientComponent implements OnInit {
 
   public onMicroClick(): void {
     this.client.bMicroActive = !this.client.bMicroActive;
-    if(this.client.bMicroActive && !this.mediasoupService.existingProducers.has(MediaType.audio))
-      this.mediasoupService.produce(MediaType.audio, localStorage.getItem('audioDevice'));
+    if(this.client.bMicroActive && !this.mediasoupService.existingProducers.has(MediaType.Audio))
+      this.mediasoupService.produce(MediaType.Audio, localStorage.getItem('audioDevice'));
     
-    else if(this.client.bMicroActive && this.mediasoupService.existingProducers.has(MediaType.audio))
-      this.mediasoupService.resumeProducer(MediaType.audio);
+    else if(this.client.bMicroActive && this.mediasoupService.existingProducers.has(MediaType.Audio))
+      this.mediasoupService.resumeProducer(MediaType.Audio);
     
     else
-      this.mediasoupService.pauseProducer(MediaType.audio);
+      this.mediasoupService.pauseProducer(MediaType.Audio);
   }
 
   public onVideoClick():void {
     this.client.bCamActive = !this.client.bCamActive;
-    if(this.client.bCamActive && !this.mediasoupService.existingProducers.has(MediaType.video))
-    this.mediasoupService.produce(MediaType.video, localStorage.getItem('videoDevice'));
+    if(this.client.bCamActive && !this.mediasoupService.existingProducers.has(MediaType.Video))
+    this.mediasoupService.produce(MediaType.Video, localStorage.getItem('videoDevice'));
   
-    else if(this.client.bCamActive && this.mediasoupService.existingProducers.has(MediaType.video))
-    this.mediasoupService.resumeProducer(MediaType.video);
+    else if(this.client.bCamActive && this.mediasoupService.existingProducers.has(MediaType.Video))
+    this.mediasoupService.resumeProducer(MediaType.Video);
   
     else
-      this.mediasoupService.pauseProducer(MediaType.video);
+      this.mediasoupService.pauseProducer(MediaType.Video);
   }
 
   public onToggleChatClick(): void {
@@ -283,9 +283,9 @@ export class RtcClientComponent implements OnInit {
   onShareScreenClick(): void {
     this.client.bScreenSharing = !this.client.bScreenSharing;
     if(this.client.bScreenSharing)
-      this.mediasoupService.produce(MediaType.screen);
+      this.mediasoupService.produce(MediaType.Screen);
     else
-      this.mediasoupService.pauseProducer(MediaType.screen);
+      this.mediasoupService.pauseProducer(MediaType.Screen);
   }
 
   public onJoinRoomClick(id: string): void {

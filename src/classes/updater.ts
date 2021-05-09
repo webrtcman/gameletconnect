@@ -17,7 +17,7 @@ export class Updater {
     
     public checkForUpdates(delay: number = 2000, bAutoDownload: boolean = false) {
         autoUpdater.autoDownload = bAutoDownload;
-        console.log('curr version:',autoUpdater.currentVersion);
+        console.log('curr version:', autoUpdater.currentVersion);
         setTimeout(() => {
             
             if(!bAutoDownload)
@@ -29,7 +29,7 @@ export class Updater {
             try {
                 autoUpdater.checkForUpdates();
             } catch(error) {
-                console.log(error);
+                this.onError(error);
             }
             
         }, delay);
@@ -44,7 +44,8 @@ export class Updater {
     public downloadUpdate(): void {
         autoUpdater.on('download-progress', (data) => {
             this.updateWindow.webContents.send('updater::downloadprogress', data);
-        })
+        });
+        autoUpdater.on('error', (error) => this.onError(error))
         autoUpdater.downloadUpdate();
         autoUpdater.on('update-downloaded', () => this.onUpdateDownloaded());
     }
@@ -69,6 +70,13 @@ export class Updater {
                 title: "Update delayed",
                 body: "The update will be installed the next time you close the app."
             }).show();
+    }
+
+    private onError(error?): void {
+        if(this.updateWindow)
+            this.updateWindow.webContents.send('updater::error', error);
+        
+        console.log(error);
     }
 
     public getVersion(): void {

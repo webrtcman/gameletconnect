@@ -25,7 +25,8 @@ export class RoomCreatorComponent implements OnInit {
     this.roomConfig = new RoomConfig(
       '',
       12,
-      false
+      false,
+      ''
     );
   }
 

@@ -1,8 +1,8 @@
 export enum MediaType {
-  audio = 'audio',
-  video = 'video',
-  screen = 'screen',
-  screenAudio = 'screenAudio',
+  Audio = 'audio',
+  Video = 'video',
+  Screen = 'screen',
+  ScreenAudio = 'screenAudio',
 }
 
 export enum SettingsTab {
@@ -44,5 +44,6 @@ export enum PopupTemplate {
   screenCapturePicker = 3,
   settingsGeneral = 4,
   settingsMedia = 5,
-  settingsAppearance = 6
+  settingsAppearance = 6,
+  roomPasswordForm = 7
 }

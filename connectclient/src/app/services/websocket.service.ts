@@ -71,8 +71,8 @@ export class WebsocketService {
     this.ipc.send('client::createlobby', config);
   }
   
-  public joinLobby(lobbyId: string): void {
-    this.ipc.send('client::joinlobby', lobbyId);
+  public joinLobby(lobbyId: string, password?: string): void {
+    this.ipc.send('client::joinlobby', {lobbyId, password});
   }
   
   public getUsersInLobby(): void {
