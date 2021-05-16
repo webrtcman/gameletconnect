@@ -1,3 +1,4 @@
+import { Vector2 } from 'src/app/classes/vector2';
 import { InterCompService } from './inter-comp.service';
 import { ScreenCaptureService } from './screen-capture.service';
 import { RtcSettingsService } from './rtc-settings.service';
@@ -11,6 +12,8 @@ import { Consumer, Producer, Device } from 'mediasoup-client/lib/types';
 import { Observable, Subject, Subscription } from 'rxjs';
 import CONFIG from 'src/config/mediasoup.json';
 import { MediaType } from 'src/app/classes/enums';
+import { Utilities } from '../classes/ulitities';
+import { config } from 'dotenv/types';
 
 
 @Injectable({
@@ -24,6 +27,7 @@ export class MediasoupService implements OnDestroy {
   routerRtpCapabilities: RtpCapabilities;
   producerTransport: Transport;
   consumerTransport: Transport;
+  bRtcInitiated: boolean;
 
   bStartingScreenVideo: boolean = false;
   bStartingScreenAudio: boolean = false;
@@ -123,6 +127,9 @@ export class MediasoupService implements OnDestroy {
    * Start the RTC Connection process to the current lobby 
    */
   public startRtc(clientId: string): void {
+    if(this.bRtcInitiated)
+      return;
+    this.bRtcInitiated = true;
     this.clientId = clientId;
     this.websocketService.requestRtpCapabilities();
     console.log("starting rtc");
@@ -141,6 +148,7 @@ export class MediasoupService implements OnDestroy {
     this.producers = new Map<string, Producer>();
     this.consumers = new Map<string, { consumer: Consumer, sourceId: string, mediaType: MediaType }>();
     this.existingProducers = new Map<MediaType, string>();
+    this.bRtcInitiated = false;
   }
 
   /**
@@ -280,50 +288,51 @@ export class MediasoupService implements OnDestroy {
   //#endregion
   //#region Producer functionality
 
-  public async produceVideo() {
-    console.log('in produce video');
-    if (!this.device.canProduce('video')) {
-      console.error('cannot produce video');
-      return;
-    }
-    if (this.existingProducers.has(MediaType.Video)) {
-      console.error('video prod exists');
-      return;
-    }
+  public async produceVideo(): Promise<void> {
+
+    if (!this.device.canProduce('video'))
+      return console.error('cannot produce video');
+ 
+    if (this.existingProducers.has(MediaType.Video))
+      return console.error('video prod exists');
+
+    let stream: MediaStream;
+    let track: MediaStreamTrack;
+    let resolutionEnum = this.rtcSettingsService.rtcPreferences.videoResolution;
+    let resolution: Vector2 = Utilities.getResolutionFromEnum(resolutionEnum);
+    console.log('Whats the fucking difference',resolution.toMediaConstraint(), CONFIG.video.resolution)
     const mediaConstraints = {
       audio: false,
-      video: CONFIG.video.resolution,
+      video: resolution.toMediaConstraint(),
       deviceId: this.rtcSettingsService.selectedVideoDeviceId
     }
 
-    let stream;
-    let track;
     try {
       stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
       track = stream.getVideoTracks()[0];
-    } catch (error) {
+      console.log(track.getConstraints());
+      if(this.rtcSettingsService.rtcPreferences.bVirtualBackground)
+        track = await this.rtcSettingsService.getVirtualBackgroundStream(track);
+    } 
+    catch (error) {
       this.rtcSettingsService.showCameraAccessError();
       return;
     }
+
     const params = {
       track,
       encodings: CONFIG.video.params.encodings,
       codecOptions: CONFIG.video.params.codecOptions
     };
 
-    console.log('producer:')
     const producer = await this.producerTransport.produce(params);
-    console.log(producer);
-    console.log("======");
     this.producers.set(producer.id, producer);
     this.existingProducers.set(MediaType.Video, producer.id);
-
   }
 
   public async produceAudio() {
     if (this.existingProducers.has(MediaType.Audio))
       return;
-
 
     const micSettings = this.rtcSettingsService.microphoneSettings;
     const mediaConstraints = {
@@ -395,6 +404,8 @@ export class MediasoupService implements OnDestroy {
 
     if (type === MediaType.Audio)
       this.rtcSettingsService.stopSpeechDetection();
+    else if(type === MediaType.Video)
+      this.rtcSettingsService.stopVirtualBackgroundStream();
 
     this.websocketService.closeProducer(producerId);
     this.producers.get(producerId).close();

@@ -1,3 +1,5 @@
+import { VideoResolution } from './enums';
+
 export class RtcPreferences {
     bMicActive: boolean = false;
     bCamActive: boolean = false;
@@ -5,4 +7,6 @@ export class RtcPreferences {
     bHighlightSpeakers: boolean = true;
     bShowOwnScreen: boolean = false;
     bCamMissingWarning: boolean = true;
+    bVirtualBackground: boolean = false;
+    videoResolution: VideoResolution = VideoResolution.FullHD
 }

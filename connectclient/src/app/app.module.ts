@@ -39,6 +39,7 @@ import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
 import { ColorOrbBackgroundComponent } from './color-orb-background/color-orb-background.component';
 import { LinkifyPipe } from './pipes/linkify.pipe';
 import { RoomPasswordFormComponent } from './components/room-password-form/room-password-form.component';
+import { ResolutionPipe } from './pipes/resolution.pipe';
 
 
 @NgModule({
@@ -69,6 +70,7 @@ import { RoomPasswordFormComponent } from './components/room-password-form/room-
     ColorOrbBackgroundComponent,
     LinkifyPipe,
     RoomPasswordFormComponent,
+    ResolutionPipe,
   ],
   imports: [
     BrowserModule,

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { DesktopCapturer, systemPreferences } from 'electron';
 
 @Injectable({
   providedIn: 'root'
@@ -8,12 +7,13 @@ export class ScreenCaptureService {
 
   private currConfig: {sourceId: string, bAudio: boolean};
 
-  private desktopCapturer: DesktopCapturer | undefined;
+  private desktopCapturer: any
 
   constructor() {
-    if (window.require) {
-      try {
-        this.desktopCapturer = window.require('electron').desktopCapturer;
+    //@ts-ignore
+    if (window.connectApi) {
+      try {//@ts-ignore
+        this.desktopCapturer = window.connectApi.desktopCapturer;
       } catch (e) { console.error(e); }
     }
     else {

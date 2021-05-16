@@ -1,14 +1,14 @@
-import { MicrophoneSettings } from './../../classes/microphonesettings';
-import { Subscription } from 'rxjs';
-import { RtcSettingsService } from './../../services/rtc-settings.service';
-import { InterCompService } from 'src/app/services/inter-comp.service';
-import { PopupWindowComponent } from './../popup-window/popup-window.component';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
+import { VideoResolution } from 'src/app/classes/enums';
+import { RtcPreferences } from 'src/app/classes/rtcpreferences';
+import { MicrophoneSettings } from 'src/app/classes/microphonesettings';
+import { Subscription } from 'rxjs';
+import { RtcSettingsService } from 'src/app/services/rtc-settings.service';
+import { InterCompService } from 'src/app/services/inter-comp.service';
 import webAudioPeakMeter from 'web-audio-peak-meter';
 import { fadeInOut } from 'src/app/animations/rtc_animations';
 import CONFIG from 'src/config/mediasoup.json';
 import { MediaType } from 'src/app/classes/enums';
-
 
 @Component({
   selector: 'app-media-settings',
@@ -20,6 +20,7 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
 
   @ViewChild('audiometer') audioMeter: ElementRef<HTMLDivElement>;
 
+  videoResolutions = VideoResolution;
   audioInDevices: MediaDeviceInfo[];
   audioOutDevices: MediaDeviceInfo[];
   videoDevices: MediaDeviceInfo[];
@@ -32,6 +33,7 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
   selectedAudioOutDeviceId: string;
 
   micSettings: MicrophoneSettings;
+  rtcPreferences: RtcPreferences
 
   bLoaded: boolean = false;
   bAudioTest: boolean = false;
@@ -45,6 +47,7 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
     private interCompService: InterCompService,
     private rtcSettingsService: RtcSettingsService
   ) {
+    this.rtcPreferences = this.rtcSettingsService.rtcPreferences;
     this.audioInDevices = [];
     this.audioOutDevices = [];
     this.videoDevices = [];
@@ -137,8 +140,7 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
       this.stopVideoTest();
   }
 
-  
-  async startMicrophoneTest(): Promise<void> {
+  private async startMicrophoneTest(): Promise<void> {
     const mediaConstraints = {
       audio: {
         deviceId: localStorage.getItem('audioInDevice'),
@@ -154,7 +156,7 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
     this.initAudioMeter();
   }
   
-  async startVideoTest(): Promise<void> {
+  private async startVideoTest(): Promise<void> {
     const mediaConstraints = {
       audio: false,
       video: CONFIG.video.preview.resolution,
@@ -168,27 +170,43 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
     this.changeDetection.detectChanges();
   }
 
-  stopAudioInTest(): void {
+  private stopAudioInTest(): void {
     this.testAudioStream.getTracks().forEach(track => {
       track.stop();
     });
     this.audioMeter.nativeElement.innerHTML = '';
   }
 
-  stopVideoTest(): void {
+  private stopVideoTest(): void {
     this.testVideoStream.getTracks().forEach(track => {
       track.stop();
     });
     this.changeDetection.detectChanges();
   }
 
-  initAudioMeter(): void {
+  private initAudioMeter(): void {
     const meterElement = this.audioMeter.nativeElement;
     const audioCtx = new window.AudioContext();
     const sourceNode = audioCtx.createMediaStreamSource(this.testAudioStream);
     sourceNode.connect(audioCtx.destination);
     const meterNode = webAudioPeakMeter.createMeterNode(sourceNode, audioCtx);
     webAudioPeakMeter.createMeter(meterElement, meterNode, {});
+    this.changeDetection.detectChanges();
+  }
+
+  public onResolutionSelect(): void {
+    this.rtcSettingsService.saveRtcPreferences();
+    this.rtcSettingsService.announceDeviceChange(MediaType.Video); //This will restart the video stream if it's active
+  }
+
+  public onVirtualBackgroundChange(): void {
+    this.rtcPreferences.bVirtualBackground = !this.rtcPreferences.bVirtualBackground;
+    
+    if(this.rtcPreferences.bVirtualBackground)
+      this.rtcPreferences.videoResolution = VideoResolution.SD; //Set video resolution to SD for better performance
+
+    this.rtcSettingsService.saveRtcPreferences();
+    this.rtcSettingsService.announceDeviceChange(MediaType.Video); //This will restart the video stream if it's active
     this.changeDetection.detectChanges();
   }
 

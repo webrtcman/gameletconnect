@@ -34,6 +34,13 @@ body {
   float: right;
 }
 
+.margin-top {
+  margin-top: 4vh;
+}
+.no-margin-top {
+  margin-top: 0;
+}
+
 .hack-iframe-hider {
   background: rgba(0, 0, 0, 0.02);
   position: absolute;
@@ -64,6 +71,10 @@ iframe {
 
 .text-blue {
   color: #24f;
+}
+
+.text-yellow {
+  color: #fb0;
 }
 
 .text-input {

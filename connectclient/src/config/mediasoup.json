@@ -13,11 +13,11 @@
         "preview": {
             "resolution": {
                 "width": {
-                    "min": 640,
+                    "min": 1024,
                     "ideal": 1280
                 },
                 "height": {
-                    "min": 480,
+                    "min": 576,
                     "ideal": 720
                 }
             }

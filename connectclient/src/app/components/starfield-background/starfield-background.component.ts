@@ -260,10 +260,10 @@ export class StarfieldBackgroundComponent implements OnInit, AfterViewInit, OnDe
       //value = simplex.noise2D(nScale * cosA + nScale, nScale * sinA + nScale),
       //rad = nRad + value;
       rad = this.nRad;
-    return {
-      x: rad * cosA,
-      y: rad * sinA
-    };
+    return new Vector2(
+      rad * cosA,
+      rad * sinA
+    );
   }
 
   random(min: number, max: number, bFloat: boolean = false) {

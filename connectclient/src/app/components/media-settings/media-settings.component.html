@@ -30,7 +30,7 @@
     <h3>
         <label class="control-switch">
             <input [checked]="micSettings.bNoiseSuppression"
-            (change)="micSettings.bNoiseSuppression = !micSettings.bNoiseSuppression;onMicSettingChange()"
+            (change)="micSettings.bNoiseSuppression = !micSettings.bNoiseSuppression; onMicSettingChange()"
             type="checkbox"
             >
             <span></span>
@@ -76,5 +76,38 @@
         </span>
         <video [srcObject]="testVideoStream" autoplay></video>
     </div>
+
+    <h3>Video Resolution:</h3>
+    <select (change)="onResolutionSelect()" [(ngModel)]="rtcPreferences.videoResolution" name="resolutionSelect">
+        <option 
+            *ngFor="let resolution of videoResolutions | keyvalue" 
+            [selected]="rtcPreferences.videoResolution === resolution.key"
+            value="{{ resolution.key }}"
+        >
+        {{ resolution.value | resolutionConvert }}
+        </option>
+    </select>
+
+    <h3 class="margin-top">Experimental Features</h3>
+    <h5 class="text-yellow">WARNING: Might be unstable and/or cause performance issues!</h5>
+    <h3>
+        <label class="control-switch">
+            <input 
+                [checked]="rtcPreferences.bVirtualBackground" 
+                (change)="onVirtualBackgroundChange()" 
+                type="checkbox"
+            >
+            <span></span>
+            <i></i>
+        </label>
+        <span>&nbsp;&nbsp;Virtual Background</span>
+    </h3>
+    <h6 class="text-yellow no-margin-top">
+        Loading might take a few seconds.<br>
+        This features needs a lot of performance.<br>
+        Video resolution will be set to SD.<br>
+        You can manually adjust the resolution.
+    </h6>
+
 </div>
 <app-loading-animation [loadingMessage]="'Collecting Device Data...'" *ngIf="!bLoaded"></app-loading-animation>

@@ -10,13 +10,15 @@ import { MediaType } from '../classes/enums';
 })
 export class WebsocketService {
   
-  private ipc: IpcRenderer | undefined;
+  private ipc: any
   
   constructor() {
-    if (window.require) {
-      try {
-        this.ipc = window.require('electron').ipcRenderer;
-      } catch (e) { console.error(e); }
+    //@ts-ignore
+    if (window.connectApi) {
+      try {//@ts-ignore
+          this.ipc = window.connectApi.ipc;
+      }
+      catch (e) { console.warn(e); }
     }
     else {
       console.warn('Electron IPC Service could not be loaded.');
