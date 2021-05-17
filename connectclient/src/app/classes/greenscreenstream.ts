@@ -38,7 +38,7 @@ export class GreenScreenStream {
     ctx: WebGL2RenderingContext;
     renderer: DR;
     mediaStream: MediaStream;
-    animId: number;
+    animFrameId: number;
     model: any;
 
     onReady: () => void
@@ -304,7 +304,7 @@ void main(){
                     const maskedImage = bodyPix.toMask(segmentation, foregroundColor, backgroundColor);      
                     ctx.putImageData(maskedImage, 0, 0);    
     
-                    this.animId = requestAnimationFrame(update);
+                    this.animFrameId = requestAnimationFrame(update);
                 }).catch( err => {
                     console.error(err);
                 });
@@ -391,7 +391,7 @@ void main(){
     }
     stop() {
         this.renderer.stop();
-        cancelAnimationFrame(this.animId); 
+        cancelAnimationFrame(this.animFrameId); 
         this.sourceVideo = null;
         this.canvas = null;
         this.cameraSource = null;
