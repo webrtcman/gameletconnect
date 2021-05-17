@@ -1,5 +1,10 @@
-import { NumberSymbol } from "@angular/common";
-
+/**
+ * demolishedRenderer
+ * @version 2.2.3
+ * @author MagnusThor / https://github.com/MagnusThor
+ * @repository https://github.com/MagnusThor/demolishedRenderer
+ * Included manually due to a weird problem with webpack
+ */
 export interface ITx {
         unit: number;
         src?: any;

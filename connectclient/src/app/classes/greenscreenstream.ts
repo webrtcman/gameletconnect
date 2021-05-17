@@ -1,4 +1,10 @@
-
+/**
+ * greenscreenstream
+ * @version 1.0.5
+ * @author Kollokvium - MagnusThor / https://github.com/coloquium https://github.com/MagnusThor
+ * @repository https://github.com/coloquium/greenscreenstream
+ * Included manually due to a weird problem with webpack
+ */
 import { DR }  from 'src/app/classes/demolishedrenderer';
 import quantize from 'quantize'
 
