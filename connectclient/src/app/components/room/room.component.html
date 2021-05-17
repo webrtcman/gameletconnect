@@ -22,6 +22,7 @@
             class="video-frame"
             [id]="user.id"
             [ngStyle]="{'width.px': calculateSize(true, true)}"
+            [ngClass]="{highlighted: user.bIsSpeaking}"
         >
             <video *ngIf="user.camStream" autoplay style="width: 100%; height: 100%;" [srcObject]="user.camStream"></video>
             <div class="video-overlay">

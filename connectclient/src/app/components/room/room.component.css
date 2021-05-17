@@ -94,6 +94,11 @@
     font-size: 5em;
 }
 
+.highlighted {
+    border: 2px solid rgba(255, 255, 255, 0.63);
+    box-shadow: 2px 2px 5px rgba(255, 255, 255, 0.3);
+}
+
 .video-frame video {
     z-index: 1;
 }

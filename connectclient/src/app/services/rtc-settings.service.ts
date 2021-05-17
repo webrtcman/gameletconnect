@@ -249,10 +249,13 @@ export class RtcSettingsService {
     this.speechEvents = hark(stream, options);
 
     this.speechEvents.on('speaking', () => {
-      this.websocketService.sendClientSpeaking();
+      this.websocketService.announceClientSpeaking();
       onSpeakCb();
     });
-    this.speechEvents.on('stopped_speaking', () => onStopSpeakCb());
+    this.speechEvents.on('stopped_speaking', () => {
+      this.websocketService.announceClientStoppedSpeaking();
+      onStopSpeakCb();
+    });
   }
 
   /**

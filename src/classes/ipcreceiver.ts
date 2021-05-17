@@ -75,6 +75,12 @@ export class IpcReceiver {
         ipcMain.on('client_rtc::producerClosed', (event, data) => {
             this.wsClient.closeProducer(data);
         });
+        ipcMain.on('client_rtc::speaking', (event) => {
+            this.wsClient.announceClientSpeaking();
+        });
+        ipcMain.on('client_rtc::stoppedSpeaking', (event) => {
+            this.wsClient.announceClientStoppedSpeaking();
+        })
 
         //Updater Events
         ipcMain.on('updateui::startdownload', ()=> {

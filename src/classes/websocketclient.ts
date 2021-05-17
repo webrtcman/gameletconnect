@@ -5,7 +5,6 @@ import { EventWebSocket } from './eventwebsocket';
 
 export class WebSocketClient {
 
-
     ws: EventWebSocket;
     currWindow: BrowserWindow;
     clientId: string;
@@ -144,6 +143,15 @@ export class WebSocketClient {
         this.ws.bind('lobby_rtc::consumerclosed', (data) => {
             this.currWindow.webContents.send('lobby_rtc::consumerclosed', data);
         });
+
+        this.ws.bind('lobby_rtc::userSpeaking', (data) => {
+            console.log(data)
+            this.currWindow.webContents.send('lobby_rtc::userSpeaking', data);
+        });
+        this.ws.bind('lobby_rtc::userStoppedSpeaking', (data) => {
+            console.log(data)
+            this.currWindow.webContents.send('lobby_rtc::userStoppedSpeaking', data);
+        });
         //#endregion
 
     }
@@ -212,6 +220,13 @@ export class WebSocketClient {
     
     public closeProducer(data){
         this.ws.emit('client_rtc::producerClosed', data);
+    }
+    announceClientSpeaking() {
+        this.ws.emit('client_rtc::speaking');
+    }
+
+    announceClientStoppedSpeaking() {
+        this.ws.emit('client_rtc::stoppedSpeaking')
     }
     
     private resetConnectionTimeout(): void {

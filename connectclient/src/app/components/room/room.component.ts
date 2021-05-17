@@ -98,6 +98,9 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.websocketService.on('lobby::connectedusers', (event, data: User[]) => this.onConnectedUsers(data));
     this.websocketService.on('lobby::userjoined', (event, data: User) => this.onUserJoined(data));
     this.websocketService.on('lobby::userleft', (event, data: User) => this.onUserLeft(data));
+    
+    this.websocketService.on('lobby_rtc::userSpeaking', (event, data) => this.onUserSpeaking(false, data.id));
+    this.websocketService.on('lobby_rtc::userStoppedSpeaking', (event, data) => this.onUserSpeaking(true, data.id));
   }
 
   /**
@@ -330,6 +333,16 @@ export class RoomComponent implements OnInit, OnDestroy {
     audio.volume = event.target.value / 100;
   }
 
+  private onUserSpeaking(bStopped: boolean, id: string) {
+    let user = this.findUser(id);
+    console.log(`searching for user ${id}`)
+    if(!user)
+      return;
+    console.log('found, '+ (bStopped === true) ? 'applying' : 'removing' + 'frame')
+    user.bIsSpeaking = !bStopped;
+    this.changeDetectorRef.detectChanges();
+  }
+
   //#endregion
   //#region Room video size calculations
   area(increment, count, width, height, margin = 10) {
@@ -354,7 +367,7 @@ export class RoomComponent implements OnInit, OnDestroy {
       return 0;
     let outWidth: number = 0;
     let outHeight: number = 0;
-    let margin: number = 2;
+    let margin: number = 10;
     let max: number = 0;
 
     let roomWidth: number;

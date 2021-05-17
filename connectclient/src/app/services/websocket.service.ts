@@ -113,11 +113,11 @@ export class WebsocketService {
     this.ipc.send('client_rtc::producerClosed', { producerId });
   }
   
-  public sendClientSpeaking():void {
+  public announceClientSpeaking():void {
     this.ipc.send('client_rtc::speaking');
   }
 
-  public sendClientStoppedSpeaking():void {
+  public announceClientStoppedSpeaking():void {
     this.ipc.send('client_rtc::stoppedSpeaking');
   }
 }

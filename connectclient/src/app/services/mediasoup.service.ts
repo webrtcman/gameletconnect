@@ -300,7 +300,7 @@ export class MediasoupService implements OnDestroy {
     let track: MediaStreamTrack;
     let resolutionEnum = this.rtcSettingsService.rtcPreferences.videoResolution;
     let resolution: Vector2 = Utilities.getResolutionFromEnum(resolutionEnum);
-    console.log('Whats the fucking difference',resolution.toMediaConstraint(), CONFIG.video.resolution)
+   
     const mediaConstraints = {
       audio: false,
       video: resolution.toMediaConstraint(),
