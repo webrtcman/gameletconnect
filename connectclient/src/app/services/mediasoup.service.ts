@@ -397,7 +397,7 @@ export class MediasoupService implements OnDestroy {
     if (!this.existingProducers.has(type))
       return console.log(`No producer of type ${type} exists.`);
 
-    let producerId = this.existingProducers.get(type);
+    let producerId = this.existingProducers.get(type); 
 
     if (!this.producers.has(producerId))
       return;
