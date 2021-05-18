@@ -8,6 +8,7 @@ import { InterCompService } from 'src/app/services/inter-comp.service';
 import webAudioPeakMeter from 'web-audio-peak-meter';
 import { fadeInOut } from 'src/app/animations/rtc_animations';
 import CONFIG from 'src/config/mediasoup.json';
+import VIRTUALBGS from 'src/config/virtualbackgrounds.json';
 import { MediaType } from 'src/app/classes/enums';
 
 @Component({
@@ -20,7 +21,9 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
 
   @ViewChild('audiometer') audioMeter: ElementRef<HTMLDivElement>;
 
+  virtualBackgrounds: {name: string, path: string}[] = VIRTUALBGS;
   videoResolutions = VideoResolution;
+
   audioInDevices: MediaDeviceInfo[];
   audioOutDevices: MediaDeviceInfo[];
   videoDevices: MediaDeviceInfo[];
@@ -207,6 +210,16 @@ export class MediaSettingsComponent implements OnInit, OnDestroy {
 
     this.rtcSettingsService.saveRtcPreferences();
     this.rtcSettingsService.announceDeviceChange(MediaType.Video); //This will restart the video stream if it's active
+    this.changeDetection.detectChanges();
+  }
+
+  public onVirtualBgClick(path: string): void {
+    this.rtcPreferences.virtualBackgroundPath = path;
+    this.rtcSettingsService.saveRtcPreferences();
+
+    if(this.rtcPreferences.bVirtualBackground)
+      this.rtcSettingsService.announceDeviceChange(MediaType.Video); //This will restart the video stream if it's active
+    
     this.changeDetection.detectChanges();
   }
 

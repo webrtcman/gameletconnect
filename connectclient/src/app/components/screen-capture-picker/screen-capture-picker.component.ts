@@ -1,9 +1,11 @@
+import { WebsocketService } from 'src/app/services/websocket.service';
 import { InterCompService } from 'src/app/services/inter-comp.service';
 import { Subscription } from 'rxjs';
 import { ScreenCaptureService } from '../../services/screen-capture.service';
 import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { PopupWindowComponent } from '../popup-window/popup-window.component';
 import { DesktopCapturerSource } from 'electron';
+
 
 
 @Component({
@@ -15,10 +17,9 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
 
   @Input('windowRef') windowRef: PopupWindowComponent;
   onShowWindowSubscription: Subscription;
-  private availableSources: DesktopCapturerSource[];
   
-  screenSources: DesktopCapturerSource[];
-  windowSources: DesktopCapturerSource[];
+  screenSources: {id: string, thumbnail: string, name: string}[];
+  windowSources: {id: string, thumbnail: string, name: string}[];
   
   bShareAudio: boolean = false;
   bLoading: boolean = true;
@@ -26,10 +27,10 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
 
   constructor(
     private interCompService: InterCompService, 
+    private websocketService: WebsocketService,
     private screenCaptureService: ScreenCaptureService,
     private changeDetectorRef: ChangeDetectorRef
     ) { 
-    this.availableSources = [];
     this.screenSources = [];
     this.windowSources = [];
   }
@@ -37,36 +38,21 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.onShowWindowSubscription = this.windowRef
       .onShow()
-      .subscribe(()=> this.loadSources());
+      .subscribe(()=> this.websocketService.requestDesktopCaptureSources());
+
+    this.websocketService.on('client::desktopCaptureSourcesMap', (event, data) => {
+      console.log(data)
+      this.screenSources = data.screenSources;
+      this.windowSources = data.windowSources;
+      this.bLoading = false;
+      this.changeDetectorRef.detectChanges();
+    })
   }
   
   ngOnDestroy(): void {
     this.onShowWindowSubscription.unsubscribe();
   }
 
-  private async loadSources(): Promise<void> {
-    //empty source array
-    this.availableSources = [];
-
-    this.availableSources = await this.screenCaptureService.getCaptureSources();
-    this.groupSources();
-    this.bLoading = false;
-    this.changeDetectorRef.detectChanges();
-  }
-
-  groupSources(): void {
-    this.screenSources = [];
-    this.windowSources = [];
-
-    this.availableSources.forEach(source => {
-      let srcType = source.id.split(':')[0];
-
-      if(srcType === 'screen')
-        this.screenSources.push(source);
-      else if(srcType === 'window')
-        this.windowSources.push(source);
-    });
-  }
 
   public onSourceClick(sourceId: string): void {
     this.screenCaptureService.setConfig(sourceId, this.bShareAudio);
@@ -74,7 +60,7 @@ export class ScreenCapturePickerComponent implements OnInit, OnDestroy {
     this.windowRef.hideWindow();
   }
 
-  public onShareAudioCheck() {
+  public onShareAudioCheck(): void {
     this.bShareAudio = !this.bShareAudio;
     this.changeDetectorRef.detectChanges();
   }

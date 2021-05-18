@@ -16,7 +16,7 @@
         (click)="onSourceClick(source.id)"
         [attr.data-name]="source.name"
         >
-            <img [src]="source.thumbnail.toDataURL()">
+            <img [src]="source.thumbnail">
         </div>
     </div>
     <h2>Windows:</h2>
@@ -28,7 +28,7 @@
             (click)="onSourceClick(source.id)"
             [attr.data-name]="source.name"
             >
-                <img [src]="source.thumbnail.toDataURL()">
+                <img [src]="source.thumbnail">
             </div>
         </ng-container>
         <h4 *ngIf="bShareAudio">Sharing single windows is not possible while sharing computer audio.</h4>

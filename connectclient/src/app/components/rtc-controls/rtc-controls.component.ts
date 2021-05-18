@@ -33,11 +33,12 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
     private rtcSettingsService: RtcSettingsService,
     private changeDetectorRef: ChangeDetectorRef
     ) { 
-    this.chatSound = new Audio('./assets/chatmsg.mp3');
+    this.chatSound = new Audio('assets/chatmsg.mp3');
     this.chatSound.load();
   }
 
   ngOnInit(): void {
+
     this.lobbyChangeSubscription = this.interCompService
       .onLobbyChange()
       .subscribe((lobbyType) => {
@@ -96,6 +97,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
     ));
     this.changeDetectorRef.detectChanges();
   }
+
   onVideoClick(): void {
     this.btnStates.bCamActive = !this.btnStates.bCamActive;
     this.interCompService.announceRtcButtonToggle(
@@ -105,6 +107,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
     ));
     this.changeDetectorRef.detectChanges();
   }
+
   onShareScreenClick(): void {
     this.btnStates.bScreenSharing = !this.btnStates.bScreenSharing;
     this.interCompService.announceRtcButtonToggle(
@@ -114,6 +117,7 @@ export class RtcControlsComponent implements OnInit, OnDestroy {
     ));
     this.changeDetectorRef.detectChanges();
   }
+  
   onToggleChatClick(): void {
     this.btnStates.bChatOpen = !this.btnStates.bChatOpen;
     

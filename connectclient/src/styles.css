@@ -77,6 +77,10 @@ iframe {
   color: #fb0;
 }
 
+.text-red {
+  color: #f00;
+}
+
 .text-input {
   width: 65%;
   padding: 10px;

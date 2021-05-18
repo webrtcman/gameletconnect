@@ -194,6 +194,7 @@ export class RoomComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+    console.log('new consumer added!')
     this.checkForScreenStreams();
     this.interCompService.requestChangeDetection();
   }
@@ -338,6 +339,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     console.log(`searching for user ${id}`)
     if(!user)
       return;
+      
     console.log('found, '+ (bStopped === true) ? 'applying' : 'removing' + 'frame')
     user.bIsSpeaking = !bStopped;
     this.changeDetectorRef.detectChanges();

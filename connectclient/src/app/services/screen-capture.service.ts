@@ -25,13 +25,6 @@ export class ScreenCaptureService {
     this.currConfig = {sourceId, bAudio};
   }
 
-  public async getCaptureSources() {
-    return await this.desktopCapturer.getSources({ 
-      types: ['window', 'screen'],
-      thumbnailSize: {width: 250, height: 140}
-    })
-  }
-
   public async startCapture(): Promise<{stream: MediaStream, bAudio: boolean}> {
     if(!this.currConfig)
       return;
@@ -46,8 +39,8 @@ export class ScreenCaptureService {
     return {stream, bAudio: this.currConfig.bAudio};
   }
 
-  private constructMediaConstraints(): any {
-    let mediaConstraints: any = {
+  private constructMediaConstraints(): MediaStreamConstraints{
+    let mediaConstraints: any  = {
       video: {
         mandatory: {
           chromeMediaSource: 'desktop',

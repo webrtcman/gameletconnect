@@ -145,11 +145,9 @@ export class WebSocketClient {
         });
 
         this.ws.bind('lobby_rtc::userSpeaking', (data) => {
-            console.log(data)
             this.currWindow.webContents.send('lobby_rtc::userSpeaking', data);
         });
         this.ws.bind('lobby_rtc::userStoppedSpeaking', (data) => {
-            console.log(data)
             this.currWindow.webContents.send('lobby_rtc::userStoppedSpeaking', data);
         });
         //#endregion

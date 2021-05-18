@@ -8,5 +8,6 @@ export class RtcPreferences {
     bShowOwnScreen: boolean = false;
     bCamMissingWarning: boolean = true;
     bVirtualBackground: boolean = false;
+    virtualBackgroundPath: string = "assets/virtual_backgrounds/correctorcat.jpg";
     videoResolution: VideoResolution = VideoResolution.FullHD
 }

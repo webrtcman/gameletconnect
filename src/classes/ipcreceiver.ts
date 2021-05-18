@@ -1,3 +1,4 @@
+import { Utilities } from './utilities';
 import Main from './main';
 import { ipcMain } from 'electron';
 import { Updater } from './updater';
@@ -80,6 +81,12 @@ export class IpcReceiver {
         });
         ipcMain.on('client_rtc::stoppedSpeaking', (event) => {
             this.wsClient.announceClientStoppedSpeaking();
+        });
+
+        ipcMain.on('client::requestDesktopCaptureSources', async (event) => {
+            let sources = await Utilities.getCaptureSources();
+            let sourcesMap = Utilities.mapCaptureSources(sources);
+            this.wsClient.currWindow.webContents.send('client::desktopCaptureSourcesMap', sourcesMap);
         })
 
         //Updater Events

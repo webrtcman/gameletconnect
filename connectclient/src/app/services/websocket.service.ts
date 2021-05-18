@@ -108,6 +108,10 @@ export class WebsocketService {
     console.log(`consume send`,{ producerId, rtpCapabilities })
     this.ipc.send('client_rtc::consume', { producerId, rtpCapabilities });
   }
+
+  public requestDesktopCaptureSources(): void  {
+    this.ipc.send('client::requestDesktopCaptureSources');
+  }
   
   public closeProducer(producerId: string):void {
     this.ipc.send('client_rtc::producerClosed', { producerId });

@@ -1,15 +1,15 @@
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { RtcPreferences } from 'src/app/classes/rtcpreferences';
-import { MediaType } from './../classes/enums';
+import { MediaType } from 'src/app/classes/enums';
 import { WindowType } from 'src/app/classes/enums';
 import { PopupConfig } from 'src/app/classes/popupconfig';
 import { InterCompService } from './inter-comp.service';
-import { MicrophoneSettings } from './../classes/microphonesettings';
+import { MicrophoneSettings } from 'src/app/classes/microphonesettings';
 import { Injectable, NgZone } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import hark from 'hark';
 import { GreenScreenStream } from 'src/app/classes/greenscreenstream';
-import { Utilities } from '../classes/ulitities';
+import { Utilities } from 'src/app/classes/ulitities';
 
 @Injectable({
   providedIn: 'root'
@@ -275,14 +275,15 @@ export class RtcSettingsService {
     return new Promise( (resolve, reject)=> {
 
       try{
-        this.gssInstance = new GreenScreenStream(true, 'assets/space-bg.jpg', undefined, resolution.x, resolution.y);
+        this.gssInstance = new GreenScreenStream(true, this.rtcPreferences.virtualBackgroundPath, undefined, resolution.x, resolution.y);
         this.gssInstance.addVideoTrack(videoTrack);
         this.gssInstance.onReady = () => {
           
+          let result;
           this.ngZone.runOutsideAngular(() => {
             this.gssInstance.render(25);
+            result = this.gssInstance.captureStream(25);
           });
-          let result = this.gssInstance.captureStream(25);
           resolve(result.getVideoTracks()[0]);
         }
       }
@@ -297,7 +298,7 @@ export class RtcSettingsService {
     if(!this.gssInstance)
       return;
 
-      this.gssInstance.stop();
+      // this.gssInstance.stop();
       this.gssInstance = null;
   }
 

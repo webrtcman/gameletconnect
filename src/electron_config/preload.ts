@@ -1,6 +1,4 @@
-import { contextBridge, ipcRenderer, desktopCapturer, NativeImage, DesktopCapturerSource } from "electron";
-
-let desktopCapturerSource : DesktopCapturerSource
+import { contextBridge, ipcRenderer, desktopCapturer } from "electron";
 
 contextBridge.exposeInMainWorld('connectApi', {
     ipc: {
@@ -9,7 +7,5 @@ contextBridge.exposeInMainWorld('connectApi', {
         once: (event_name, callback) => ipcRenderer.once(event_name, callback),
         removeListener: (event_name, callback) => ipcRenderer.removeListener(event_name, callback)
     },
-    desktopCapturer,
-    NativeImage,
-    desktopCapturerSource 
-})
+    desktopCapturer
+});
