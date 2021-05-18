@@ -8,7 +8,7 @@ import { InterCompService } from 'src/app/services/inter-comp.service';
 import webAudioPeakMeter from 'web-audio-peak-meter';
 import { fadeInOut } from 'src/app/animations/rtc_animations';
 import CONFIG from 'src/config/mediasoup.json';
-import VIRTUALBGS from 'src/config/virtualbackgrounds.json';
+import VIRTUALBGS from 'src/assets/virtual_backgrounds/virtualbackgrounds.json';
 import { MediaType } from 'src/app/classes/enums';
 
 @Component({
