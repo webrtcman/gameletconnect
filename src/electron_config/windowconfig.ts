@@ -8,14 +8,15 @@ const path = require('path');
         show: false,
         backgroundColor: '#ffffff',
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            // webSecurity: false,
+            // nodeIntegration: true
+            preload: `${__dirname}/preload.js`
+            //webSecurity: false,
             //devTools: false
         }
         //frame: false,
         //transparent: true,
 }
+console.log(`${__dirname}/preload.js`)
 
 export const updateWindowConfig: BrowserWindowConstructorOptions = {
     width: 400,

@@ -1,0 +1,18 @@
+[
+    {
+        "name": "CorrectorCat",
+        "path": "assets/virtual_backgrounds/correctorcat.jpg"
+    },
+    {
+        "name": "Beach",
+        "path": "assets/virtual_backgrounds/beach.jpg"
+    },
+    {
+        "name": "Orbit",
+        "path": "assets/virtual_backgrounds/orbit.jpg"
+    },
+    {
+        "name": "Seashells",
+        "path": "assets/virtual_backgrounds/seashells.jpg"
+    }
+]

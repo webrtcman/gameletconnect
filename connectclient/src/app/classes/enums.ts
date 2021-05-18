@@ -18,6 +18,12 @@ export enum WindowType {
   Danger = 'danger'
 }
 
+export enum VideoResolution {
+  FullHD = 'FullHD',
+  HD = 'HD',
+  SD = 'SD'
+}
+
 export enum LobbyType {
   Base = 'Base',
   Room = 'Room'

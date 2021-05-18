@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { DesktopCapturer, systemPreferences } from 'electron';
 
 @Injectable({
   providedIn: 'root'
@@ -8,12 +7,13 @@ export class ScreenCaptureService {
 
   private currConfig: {sourceId: string, bAudio: boolean};
 
-  private desktopCapturer: DesktopCapturer | undefined;
+  private desktopCapturer: any
 
   constructor() {
-    if (window.require) {
-      try {
-        this.desktopCapturer = window.require('electron').desktopCapturer;
+    //@ts-ignore
+    if (window.connectApi) {
+      try {//@ts-ignore
+        this.desktopCapturer = window.connectApi.desktopCapturer;
       } catch (e) { console.error(e); }
     }
     else {
@@ -23,13 +23,6 @@ export class ScreenCaptureService {
 
   setConfig(sourceId: string, bAudio: boolean) {
     this.currConfig = {sourceId, bAudio};
-  }
-
-  public async getCaptureSources() {
-    return await this.desktopCapturer.getSources({ 
-      types: ['window', 'screen'],
-      thumbnailSize: {width: 250, height: 140}
-    })
   }
 
   public async startCapture(): Promise<{stream: MediaStream, bAudio: boolean}> {
@@ -46,8 +39,8 @@ export class ScreenCaptureService {
     return {stream, bAudio: this.currConfig.bAudio};
   }
 
-  private constructMediaConstraints(): any {
-    let mediaConstraints: any = {
+  private constructMediaConstraints(): MediaStreamConstraints{
+    let mediaConstraints: any  = {
       video: {
         mandatory: {
           chromeMediaSource: 'desktop',

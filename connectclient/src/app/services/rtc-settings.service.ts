@@ -1,13 +1,15 @@
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { RtcPreferences } from 'src/app/classes/rtcpreferences';
-import { MediaType } from './../classes/enums';
+import { MediaType } from 'src/app/classes/enums';
 import { WindowType } from 'src/app/classes/enums';
 import { PopupConfig } from 'src/app/classes/popupconfig';
 import { InterCompService } from './inter-comp.service';
-import { MicrophoneSettings } from './../classes/microphonesettings';
-import { Injectable } from '@angular/core';
+import { MicrophoneSettings } from 'src/app/classes/microphonesettings';
+import { Injectable, NgZone } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import hark from 'hark';
+import { GreenScreenStream } from 'src/app/classes/greenscreenstream';
+import { Utilities } from 'src/app/classes/ulitities';
 
 @Injectable({
   providedIn: 'root'
@@ -36,8 +38,10 @@ export class RtcSettingsService {
     bAudioOut: false,
     bCamera: false
   };
+  gssInstance: GreenScreenStream;
 
   constructor(
+    private ngZone: NgZone,
     private interCompService: InterCompService,
     private websocketService: WebsocketService
   ) {
@@ -71,7 +75,10 @@ export class RtcSettingsService {
     localStorage.setItem('microphoneSettings', micSettings);
   }
 
-
+  /**
+   * Notifies all subscribers that a new device was selected
+   * @param type The MediaType the changed device produces
+   */
   public announceDeviceChange(type: MediaType): void {
     this.devicesChangedSubject.next(type);
   }
@@ -242,10 +249,13 @@ export class RtcSettingsService {
     this.speechEvents = hark(stream, options);
 
     this.speechEvents.on('speaking', () => {
-      this.websocketService.sendClientSpeaking();
+      this.websocketService.announceClientSpeaking();
       onSpeakCb();
     });
-    this.speechEvents.on('stopped_speaking', () => onStopSpeakCb());
+    this.speechEvents.on('stopped_speaking', () => {
+      this.websocketService.announceClientStoppedSpeaking();
+      onStopSpeakCb();
+    });
   }
 
   /**
@@ -257,6 +267,39 @@ export class RtcSettingsService {
   
     this.speechEvents.stop();
     this.speechEvents = null;
+  }
+
+  public getVirtualBackgroundStream(videoTrack: MediaStreamTrack): Promise<MediaStreamTrack> {
+    let resolution = Utilities.getResolutionFromEnum(this.rtcPreferences.videoResolution);
+
+    return new Promise( (resolve, reject)=> {
+
+      try{
+        this.gssInstance = new GreenScreenStream(true, this.rtcPreferences.virtualBackgroundPath, undefined, resolution.x, resolution.y);
+        this.gssInstance.addVideoTrack(videoTrack);
+        this.gssInstance.onReady = () => {
+          
+          let result;
+          this.ngZone.runOutsideAngular(() => {
+            this.gssInstance.render(25);
+            result = this.gssInstance.captureStream(25);
+          });
+          resolve(result.getVideoTracks()[0]);
+        }
+      }
+      catch(error) {
+        console.error(error);
+        reject();
+      }
+    });
+  }
+
+  public stopVirtualBackgroundStream() {
+    if(!this.gssInstance)
+      return;
+
+      // this.gssInstance.stop();
+      this.gssInstance = null;
   }
 
   /**

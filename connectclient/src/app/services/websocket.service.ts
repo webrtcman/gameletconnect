@@ -10,13 +10,15 @@ import { MediaType } from '../classes/enums';
 })
 export class WebsocketService {
   
-  private ipc: IpcRenderer | undefined;
+  private ipc: any
   
   constructor() {
-    if (window.require) {
-      try {
-        this.ipc = window.require('electron').ipcRenderer;
-      } catch (e) { console.error(e); }
+    //@ts-ignore
+    if (window.connectApi) {
+      try {//@ts-ignore
+          this.ipc = window.connectApi.ipc;
+      }
+      catch (e) { console.warn(e); }
     }
     else {
       console.warn('Electron IPC Service could not be loaded.');
@@ -106,16 +108,20 @@ export class WebsocketService {
     console.log(`consume send`,{ producerId, rtpCapabilities })
     this.ipc.send('client_rtc::consume', { producerId, rtpCapabilities });
   }
+
+  public requestDesktopCaptureSources(): void  {
+    this.ipc.send('client::requestDesktopCaptureSources');
+  }
   
   public closeProducer(producerId: string):void {
     this.ipc.send('client_rtc::producerClosed', { producerId });
   }
   
-  public sendClientSpeaking():void {
+  public announceClientSpeaking():void {
     this.ipc.send('client_rtc::speaking');
   }
 
-  public sendClientStoppedSpeaking():void {
+  public announceClientStoppedSpeaking():void {
     this.ipc.send('client_rtc::stoppedSpeaking');
   }
 }

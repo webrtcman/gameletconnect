@@ -1,3 +1,4 @@
+import { Vector2 } from 'src/app/classes/vector2';
 import { InterCompService } from './inter-comp.service';
 import { ScreenCaptureService } from './screen-capture.service';
 import { RtcSettingsService } from './rtc-settings.service';
@@ -11,6 +12,8 @@ import { Consumer, Producer, Device } from 'mediasoup-client/lib/types';
 import { Observable, Subject, Subscription } from 'rxjs';
 import CONFIG from 'src/config/mediasoup.json';
 import { MediaType } from 'src/app/classes/enums';
+import { Utilities } from '../classes/ulitities';
+import { config } from 'dotenv/types';
 
 
 @Injectable({
@@ -24,6 +27,7 @@ export class MediasoupService implements OnDestroy {
   routerRtpCapabilities: RtpCapabilities;
   producerTransport: Transport;
   consumerTransport: Transport;
+  bRtcInitiated: boolean;
 
   bStartingScreenVideo: boolean = false;
   bStartingScreenAudio: boolean = false;
@@ -60,8 +64,8 @@ export class MediasoupService implements OnDestroy {
   }
 
   ngOnDestroy() {
-  this.deviceChangeSubscription.unsubscribe();
-  this.audioSettingsChangeSubscription.unsubscribe();
+    this.deviceChangeSubscription.unsubscribe();
+    this.audioSettingsChangeSubscription.unsubscribe();
   }
 
   private registerRtcSettingsSubscriptions() {
@@ -91,7 +95,7 @@ export class MediasoupService implements OnDestroy {
 
     //Iterate through each received producer and start consumation before notifying the component about a change
     this.websocketService.on('lobby_rtc::allProducers', async (event, data) => {
-     this.onAllProducers(data);
+      this.onAllProducers(data);
     });
 
     this.websocketService.on('lobby_rtc::newproducer', async (event, data) => {
@@ -123,6 +127,9 @@ export class MediasoupService implements OnDestroy {
    * Start the RTC Connection process to the current lobby 
    */
   public startRtc(clientId: string): void {
+    if (this.bRtcInitiated)
+      return;
+    this.bRtcInitiated = true;
     this.clientId = clientId;
     this.websocketService.requestRtpCapabilities();
     console.log("starting rtc");
@@ -141,6 +148,7 @@ export class MediasoupService implements OnDestroy {
     this.producers = new Map<string, Producer>();
     this.consumers = new Map<string, { consumer: Consumer, sourceId: string, mediaType: MediaType }>();
     this.existingProducers = new Map<MediaType, string>();
+    this.bRtcInitiated = false;
   }
 
   /**
@@ -156,7 +164,7 @@ export class MediasoupService implements OnDestroy {
       alert('Your Device is not supported. You cannot participate in Video or Audio communication.');
       return;
     }
-    await this.device.load({routerRtpCapabilities});
+    await this.device.load({ routerRtpCapabilities });
   }
 
   public getDeviceRtpCapabilities(): RtpCapabilities | void {
@@ -213,9 +221,9 @@ export class MediasoupService implements OnDestroy {
         this.websocketService.on('lobby_rtc::clientProducerId', (event, data) => {
           callback({ id: data.producerId });
 
-          if(data.mediaType == MediaType.Screen)
+          if (data.mediaType == MediaType.Screen)
             this.bStartingScreenVideo = false;
-          else if(data.mediaType == MediaType.ScreenAudio)
+          else if (data.mediaType == MediaType.ScreenAudio)
             this.bStartingScreenAudio = false;
         });
       }
@@ -223,6 +231,10 @@ export class MediasoupService implements OnDestroy {
         console.log(error);
         errback();
       }
+    });
+
+    this.producerTransport.on("icestatechange", (iceState) => {
+      console.log("ICE state changed to %s", iceState);
     });
 
     this.producerTransport.on('connectionstatechange', async (state) => {
@@ -262,6 +274,10 @@ export class MediasoupService implements OnDestroy {
 
       });
     })
+
+    this.consumerTransport.on("icestatechange", (iceState) => {
+      console.log("ICE state changed to %s", iceState);
+    });
     //Unused for now
     this.consumerTransport.on('connectionstatechange', async (state) => {
       switch (state) {
@@ -280,50 +296,51 @@ export class MediasoupService implements OnDestroy {
   //#endregion
   //#region Producer functionality
 
-  public async produceVideo() {
-    console.log('in produce video');
-    if (!this.device.canProduce('video')) {
-      console.error('cannot produce video');
-      return;
-    }
-    if (this.existingProducers.has(MediaType.Video)) {
-      console.error('video prod exists');
-      return;
-    }
+  public async produceVideo(): Promise<void> {
+
+    if (!this.device.canProduce('video'))
+      return console.error('cannot produce video');
+
+    if (this.existingProducers.has(MediaType.Video))
+      return console.error('video prod exists');
+
+    let stream: MediaStream;
+    let track: MediaStreamTrack;
+    let resolutionEnum = this.rtcSettingsService.rtcPreferences.videoResolution;
+    let resolution: Vector2 = Utilities.getResolutionFromEnum(resolutionEnum);
+
     const mediaConstraints = {
       audio: false,
-      video: CONFIG.video.resolution,
+      video: resolution.toMediaConstraint(),
       deviceId: this.rtcSettingsService.selectedVideoDeviceId
     }
 
-    let stream;
-    let track;
     try {
       stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
       track = stream.getVideoTracks()[0];
-    } catch (error) {
+      console.log(track.getConstraints());
+      if (this.rtcSettingsService.rtcPreferences.bVirtualBackground)
+        track = await this.rtcSettingsService.getVirtualBackgroundStream(track);
+    }
+    catch (error) {
       this.rtcSettingsService.showCameraAccessError();
       return;
     }
+
     const params = {
       track,
       encodings: CONFIG.video.params.encodings,
       codecOptions: CONFIG.video.params.codecOptions
     };
 
-    console.log('producer:')
     const producer = await this.producerTransport.produce(params);
-    console.log(producer);
-    console.log("======");
     this.producers.set(producer.id, producer);
     this.existingProducers.set(MediaType.Video, producer.id);
-
   }
 
   public async produceAudio() {
     if (this.existingProducers.has(MediaType.Audio))
       return;
-
 
     const micSettings = this.rtcSettingsService.microphoneSettings;
     const mediaConstraints = {
@@ -395,6 +412,8 @@ export class MediasoupService implements OnDestroy {
 
     if (type === MediaType.Audio)
       this.rtcSettingsService.stopSpeechDetection();
+    else if (type === MediaType.Video)
+      this.rtcSettingsService.stopVirtualBackgroundStream();
 
     this.websocketService.closeProducer(producerId);
     this.producers.get(producerId).close();
@@ -452,19 +471,19 @@ export class MediasoupService implements OnDestroy {
 
   private async onNewProducer(data): Promise<void> {
     const producer = data;
-    if(!producer)
+    if (!producer)
       return;
 
-    if(producer.sourceId != this.interCompService.getClientId() || this.getOwnVideoStreamEnabled(producer))
+    if (producer.sourceId != this.interCompService.getClientId() || this.getOwnVideoStreamEnabled(producer))
       await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
   }
 
   private async onAllProducers(data): Promise<void> {
-    if(!data.producers)
+    if (!data.producers)
       return;
 
     for (const producer of data.producers) {
-      if(producer.sourceId != this.interCompService.getClientId() || this.getOwnVideoStreamEnabled(producer))
+      if (producer.sourceId != this.interCompService.getClientId() || this.getOwnVideoStreamEnabled(producer))
         await this.consume(producer.producerId, producer.sourceId, producer.mediaType);
     }
   }
@@ -473,7 +492,7 @@ export class MediasoupService implements OnDestroy {
     const { consumer, stream } = await this.getConsumeStream(producerId);
     const streamData = new StreamData(sourceId, consumer.id, stream);
 
-    switch(mediaType){
+    switch (mediaType) {
       case MediaType.Video:
         streamData.streamType = MediaType.Video;
         break;
@@ -494,7 +513,7 @@ export class MediasoupService implements OnDestroy {
       this.removeConsumer(consumer.id);
     });
     this.consumers.set(consumer.id, { consumer, sourceId, mediaType: streamData.streamType });
-
+    console.log('consuming success,yay', this.consumers.get(consumer.id))
     this.consumerAddedSubject.next(streamData);
   }
 
@@ -510,6 +529,7 @@ export class MediasoupService implements OnDestroy {
           const consumer = await this.consumerTransport.consume(data.params);
           const stream = new MediaStream();
           stream.addTrack(consumer.track);
+          console.log('consumation success')
           resolve({ consumer, stream, kind: data.params.kind });
         }
         catch (error) {
@@ -528,8 +548,8 @@ export class MediasoupService implements OnDestroy {
   //#endregion
 
   private getOwnVideoStreamEnabled(producer): boolean {
-    if(this.rtcSettingsService.rtcPreferences.bShowOwnVideo && 
-      producer.mediaType !== MediaType.Audio &&  
+    if (this.rtcSettingsService.rtcPreferences.bShowOwnVideo &&
+      producer.mediaType !== MediaType.Audio &&
       producer.mediaType !== MediaType.ScreenAudio
     )
       return true;

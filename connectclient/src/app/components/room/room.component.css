@@ -77,7 +77,7 @@
     box-shadow: 2px 2px 5px rgba(243, 243, 243, 0.1);
     backdrop-filter: blur(4px);
     background: rgba(255, 255, 255, 0.04);
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16/9;
 }
 .video-frame::before {
     z-index: -1;
@@ -92,6 +92,11 @@
     font-family: "Font Awesome 5 Free";
     color: rgba(255, 255, 255, 0.5);
     font-size: 5em;
+}
+
+.highlighted {
+    border: 2px solid rgba(255, 255, 255, 0.63);
+    box-shadow: 2px 2px 5px rgba(255, 255, 255, 0.3);
 }
 
 .video-frame video {
